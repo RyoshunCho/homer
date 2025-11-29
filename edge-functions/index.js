@@ -179,7 +179,7 @@ async function getLarkAccessToken(code) {
  */
 async function getLarkUserInfo(accessToken) {
     const response = await fetch(
-        "https://passport.larksuite.com/suite/passport/oauth/userinfo",
+        "https://open.larksuite.com/open-apis/authen/v1/user_info",
         {
             method: "GET",
             headers: {
@@ -189,12 +189,17 @@ async function getLarkUserInfo(accessToken) {
         }
     );
 
-    const data = await response.json();
-    if (!data.email) {
-        const debugInfo = JSON.stringify(data);
+    const responseJson = await response.json();
+    if (responseJson.code !== 0) {
+        throw new Error(`Lark UserInfo API Error: ${responseJson.msg} (code: ${responseJson.code})`);
+    }
+
+    const userInfo = responseJson.data;
+    if (!userInfo || !userInfo.email) {
+        const debugInfo = JSON.stringify(responseJson);
         throw new Error(`无法获取用户邮箱信息，认证失败。Lark响应: ${debugInfo}`);
     }
-    return data;
+    return userInfo;
 }
 
 /**
