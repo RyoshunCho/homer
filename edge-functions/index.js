@@ -1,8 +1,8 @@
 // ======================== 配置项（需替换为实际信息）========================
 const CONFIG = {
     // Lark 应用凭证（开发者后台获取）
-    LARK_APP_ID: "cli_a9aaef5d2df8de1c",
-    LARK_APP_SECRET: "FaNO3rtD3WIHR0zMkhtingZ6pGtwfUWK",
+    LARK_APP_ID: "cli_a9a1d7e481389e1b",
+    LARK_APP_SECRET: "JIpx57OYudZrj4FwSyO9gb4tGBaMwNfC",
     // 回调URL（需和Lark应用后台配置的完全一致）
     LARK_REDIRECT_URI: "https://nav.lodgegeek.com/auth/callback",
     // 公司邮箱域名（例如 lodgegeek.com）
@@ -118,12 +118,23 @@ async function handleLarkCallback(url) {
             return createErrorResponse("Lark认证失败", "无法获取用户信息");
         }
 
-        // 验证公司邮箱域名
-        const emailDomain = userInfo.email.split("@")[1];
+        // 验证公司邮箱域名（必须使用企业邮箱 enterprise_email）
+        const enterpriseEmail = userInfo.enterprise_email;
+
+        // 如果没有企业邮箱，显示详细错误信息
+        if (!enterpriseEmail) {
+            return createErrorResponse(
+                "无法获取企业邮箱",
+                `请确保：<br>1. Lark应用已开启"获取用户受雇信息"权限<br>2. Lark管理后台已启用邮箱服务<br>3. 用户已设置企业邮箱<br><br>当前用户信息：<br><pre>${JSON.stringify(userInfo, null, 2)}</pre>`
+            );
+        }
+
+        const emailDomain = enterpriseEmail.split("@")[1];
+
         if (emailDomain !== CONFIG.COMPANY_EMAIL_DOMAIN) {
             return createErrorResponse(
-                `未授权访问：仅允许 ${CONFIG.COMPANY_EMAIL_DOMAIN} 域名的账号访问`,
-                `当前登录邮箱：${userInfo.email}`
+                `未授权访问：仅允许 ${CONFIG.COMPANY_EMAIL_DOMAIN}域名的账号访问`,
+                `企业邮箱：${enterpriseEmail}<br>个人邮箱：${userInfo.email || '未设置'}`
             );
         }
 
