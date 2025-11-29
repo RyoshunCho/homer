@@ -191,7 +191,8 @@ async function getLarkUserInfo(accessToken) {
 
     const data = await response.json();
     if (!data.email) {
-        throw new Error("无法获取用户邮箱信息，认证失败");
+        const debugInfo = JSON.stringify(data);
+        throw new Error(`无法获取用户邮箱信息，认证失败。Lark响应: ${debugInfo}`);
     }
     return data;
 }
