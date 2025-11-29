@@ -4,7 +4,7 @@ const CONFIG = {
     LARK_APP_ID: "cli_a9aaef5d2df8de1c",
     LARK_APP_SECRET: "FaNO3rtD3WIHR0zMkhtingZ6pGtwfUWK",
     // 回调URL（需和Lark应用后台配置的完全一致）
-    LARK_REDIRECT_URI: "https://nav.lodgegeek.com/api/auth.js",
+    LARK_REDIRECT_URI: "https://nav.lodgegeek.com/auth/callback",
     // 公司邮箱域名（例如 lodgegeek.com）
     COMPANY_EMAIL_DOMAIN: "lodgegeek.com",
     // 登录Cookie配置
@@ -48,7 +48,7 @@ async function handleRequest(request) {
     }
 
     // 3. 处理Lark认证回调
-    if (url.pathname === "/api/auth.js") {
+    if (url.pathname === "/auth/callback") {
         console.log(`[Debug] Handling callback`);
         return handleLarkCallback(url);
     }
