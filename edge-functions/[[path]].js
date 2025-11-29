@@ -42,9 +42,25 @@ async function handleRequest(request) {
 
     if (isLoggedIn) {
         const response = await fetch(request);
-        const newResponse = new Response(response.body, response);
-        newResponse.headers.set("X-Debug-Auth", "logged_in");
-        return newResponse;
+
+        // Debug: Log upstream headers
+        console.log(`[Debug] Upstream Status: ${response.status}`);
+        console.log("[Debug] Upstream Headers:");
+        response.headers.forEach((value, key) => {
+            console.log(`  ${key}: ${value}`);
+        });
+
+        // Reconstruct headers to safely strip encoding/length
+        const newHeaders = new Headers(response.headers);
+        newHeaders.delete("Content-Encoding");
+        newHeaders.delete("Content-Length");
+        newHeaders.set("X-Debug-Auth", "logged_in");
+
+        return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: newHeaders
+        });
     }
 
     // 3. 处理Lark认证回调
