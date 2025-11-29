@@ -101,7 +101,7 @@ function redirectToLarkAuth() {
 async function handleLarkCallback(url) {
     const code = url.searchParams.get("code");
     if (!code) {
-        return new Response("Lark认证失败：缺少授权码（code）", { status: 400 });
+        return createErrorResponse("Lark认证失败", "缺少授权码（code）");
     }
 
     try {
@@ -109,21 +109,21 @@ async function handleLarkCallback(url) {
         const accessTokenData = await getLarkAccessToken(code);
         const accessToken = accessTokenData.data?.access_token;
         if (!accessToken) {
-            return new Response(`Lark认证失败：${accessTokenData.msg || "获取AccessToken失败"}`, { status: 401 });
+            return createErrorResponse("Lark认证失败", accessTokenData.msg || "获取AccessToken失败");
         }
 
         // 获取用户信息
         const userInfo = await getLarkUserInfo(accessToken);
         if (!userInfo || !userInfo.email) {
-            return new Response("Lark认证失败：无法获取用户信息", { status: 401 });
+            return createErrorResponse("Lark认证失败", "无法获取用户信息");
         }
 
         // 验证公司邮箱域名
         const emailDomain = userInfo.email.split("@")[1];
         if (emailDomain !== CONFIG.COMPANY_EMAIL_DOMAIN) {
-            return new Response(
-                `未授权访问：仅允许${CONFIG.COMPANY_EMAIL_DOMAIN}域名的账号访问。当前邮箱：${userInfo.email}`,
-                { status: 403 }
+            return createErrorResponse(
+                `未授权访问：仅允许 ${CONFIG.COMPANY_EMAIL_DOMAIN} 域名的账号访问`,
+                `当前登录邮箱：${userInfo.email}`
             );
         }
 
@@ -140,8 +140,42 @@ async function handleLarkCallback(url) {
 
     } catch (error) {
         console.error("Lark回调处理异常：", error);
-        return new Response(`服务器内部错误：${error.message}`, { status: 500 });
+        return createErrorResponse("服务器内部错误", error.message);
     }
+}
+
+function createErrorResponse(message, debugInfo = "") {
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login Error</title>
+        <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 2rem; text-align: center; background-color: #f5f5f7; color: #1d1d1f; }
+            .container { max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+            .error-title { color: #d93025; font-size: 1.5rem; margin-bottom: 1rem; }
+            .message { margin-bottom: 1.5rem; line-height: 1.5; }
+            .debug { background: #f5f5f5; padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 0.85rem; text-align: left; overflow-x: auto; margin-bottom: 2rem; color: #333; }
+            .btn { display: inline-block; padding: 0.8rem 1.5rem; background: #007aff; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; transition: background 0.2s; }
+            .btn:hover { background: #0062cc; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2 class="error-title">Authentication Failed</h2>
+            <p class="message">${message}</p>
+            ${debugInfo ? `<div class="debug"><strong>Debug Info:</strong><br>${debugInfo}</div>` : ""}
+            <a href="/" class="btn">Return to Home (Retry)</a>
+        </div>
+    </body>
+    </html>
+    `;
+    return new Response(html, {
+        status: 403,
+        headers: { "Content-Type": "text/html; charset=utf-8" }
+    });
 }
 
 /**
