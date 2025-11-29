@@ -150,6 +150,7 @@ async function getLarkAccessToken(code) {
     const requestBody = JSON.stringify({
         app_id: CONFIG.LARK_APP_ID,
         app_secret: CONFIG.LARK_APP_SECRET,
+        grant_type: "authorization_code",
         code: code
     });
 
