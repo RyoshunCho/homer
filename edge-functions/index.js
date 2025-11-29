@@ -122,7 +122,7 @@ async function handleLarkCallback(url) {
         const emailDomain = userInfo.email.split("@")[1];
         if (emailDomain !== CONFIG.COMPANY_EMAIL_DOMAIN) {
             return new Response(
-                `未授权访问：仅允许${CONFIG.COMPANY_EMAIL_DOMAIN}域名的账号访问`,
+                `未授权访问：仅允许${CONFIG.COMPANY_EMAIL_DOMAIN}域名的账号访问。当前邮箱：${userInfo.email}`,
                 { status: 403 }
             );
         }
