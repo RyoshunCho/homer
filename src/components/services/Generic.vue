@@ -1,6 +1,17 @@
 <template>
   <div>
     <div class="card" :style="`background-color:${item.background};`">
+      <a
+        v-if="item.doc"
+        class="doc-link"
+        :href="item.doc"
+        target="_blank"
+        rel="noreferrer"
+        @click.stop
+      >
+        <span style="margin-right: 4px">👉</span>
+        <i class="fas fa-book"></i>
+      </a>
       <a :href="item.url" :target="item.target" rel="noreferrer">
         <div class="card-content">
           <div :class="mediaClass">
@@ -68,6 +79,20 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.doc-link {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+  color: #ff9f43; /* Vibrant Orange */
+  font-size: 1.5rem; /* Bigger */
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
 .media-left {
   .image {
     display: flex;

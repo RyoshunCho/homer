@@ -9,6 +9,7 @@
 }
 
 @layer base {
+
   html,
   body,
   body #app-mount,
@@ -35,6 +36,7 @@
 
       a {
         color: var(--link);
+
         &:hover {
           color: var(--link-hover);
         }
@@ -44,6 +46,7 @@
         font-weight: 500;
         color: var(--text-title);
       }
+
       .subtitle {
         color: var(--text-subtitle);
       }
@@ -51,10 +54,12 @@
       .card {
         background-color: var(--card-background);
         box-shadow: 0 2px 15px 0 var(--card-shadow);
+
         &:hover {
           background-color: var(--card-background);
         }
       }
+
       .component-error .card {
         border: 1px solid rgba(255, 33, 33, 0.664);
         background-color: rgba(255, 58, 58, 0.24);
@@ -107,7 +112,7 @@
       }
 
       .first-line {
-        min-height: 100px;
+        min-height: 60px;
         vertical-align: center;
         background-color: var(--highlight-primary);
 
@@ -122,43 +127,42 @@
         }
 
         .container {
-          min-height: 80px;
-          padding: 10px 0;
+          min-height: 60px;
+          padding: 5px 0;
         }
 
         .logo {
           float: left;
-          i {
-            vertical-align: top;
-            padding: 8px 15px;
-            font-size: 50px;
-          }
 
           img {
-            padding: 10px;
-            max-height: 70px;
-            max-width: 70px;
+            padding: 5px;
+            max-height: 60px;
+            max-width: 60px;
           }
-        }
-      }
-      .navbar {
-        background-color: var(--highlight-secondary);
 
-        a {
-          color: var(--text-header);
-          padding: 8px 12px;
-          &:hover,
-          &:focus {
+          a {
             color: var(--text-header);
-            background-color: var(--highlight-hover);
+            padding: 8px 12px;
+
+            &:hover,
+            &:focus {
+              color: var(--text-header);
+              background-color: var(--highlight-hover);
+            }
+          }
+
+          .navbar-menu {
+            background-color: inherit;
+
+            i {
+              color: var(--highlight-primary);
+            }
           }
         }
-        .navbar-menu {
-          background-color: inherit;
+
+        .navbar-end {
+          text-align: right;
         }
-      }
-      .navbar-end {
-        text-align: right;
       }
     }
 
@@ -168,6 +172,7 @@
       h2 {
         padding-bottom: 0px;
         @include ellipsis();
+
         i {
           color: var(--highlight-primary);
         }
@@ -192,7 +197,7 @@
       }
 
       .message {
-        margin-top: 45px;
+        margin-top: 10px;
         box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.1);
 
         .message-header {
@@ -313,6 +318,7 @@
     .search-bar {
       position: relative;
       display: inline-block;
+
       input {
         border: none;
         background-color: var(--highlight-hover);

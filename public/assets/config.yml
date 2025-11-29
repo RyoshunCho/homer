@@ -2,13 +2,13 @@
 # Homepage configuration
 # See https://fontawesome.com/search for icons options
 
-title: "Demo dashboard"
-subtitle: "Homer"
+title: "LodgeGeek Navi"
+subtitle: "社内导航页面"
 logo: "logo.png"
 # icon: "fas fa-skull-crossbones" # Optional icon
 
 header: true
-footer: '<p>Created with <span class="has-text-danger">❤️</span> with <a href="https://bulma.io/">bulma</a>, <a href="https://vuejs.org/">vuejs</a> & <a href="https://fontawesome.com/">font awesome</a> // Fork me on <a href="https://github.com/bastienwirtz/homer"><i class="fab fa-github-alt"></i></a></p>' # set false if you want to hide it.
+footer: '<p>有问题请联系 shunsuke.hayashi@lodgegeek.com</p>' # set false if you want to hide it.
 
 # Optional theme customization
 theme: default
@@ -61,6 +61,9 @@ links:
   - name: "Wiki"
     icon: "fas fa-book"
     url: "https://www.wikipedia.org/"
+  - name: "Sample Page"
+    icon: "fas fa-file-alt"
+    url: "#sample-page"
   # this will link to a second homer page that will load config from additional-page.yml and keep default config values as in config.yml file
   # see url field and assets/additional-page.yml.dist used in this example:
   #- name: "another page!"
@@ -99,3 +102,8 @@ services:
         subtitle: "Dashboard icons"
         tag: "setup"
         url: "https://github.com/walkxcode/dashboard-icons"
+      - name: "Doc Link Test"
+        icon: "fa-solid fa-book"
+        subtitle: "Testing doc link feature"
+        url: "https://google.com"
+        doc: "https://docs.google.com"

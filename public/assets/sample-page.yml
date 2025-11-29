@@ -1,0 +1,34 @@
+---
+# Additional page configuration
+subtitle: "Sample Page"
+
+# This overwrites message config. Setting it to empty to remove message from this page and keep it only in the main one:
+message:
+  style: "is-info"
+  title: "Welcome to the Sample Page!"
+  content: "This is an example of an additional dashboard page."
+
+# Navigation links for this page
+links:
+  - name: "Home"
+    icon: "fas fa-home"
+    url: "#" # Link back to the main dashboard
+  - name: "Sample Page"
+    icon: "fas fa-file-alt"
+    url: "#sample-page"
+
+services:
+  - name: "Sample Group"
+    icon: "fas fa-layer-group"
+    items:
+      - name: "Google"
+        logo: "assets/tools/sample.png"
+        subtitle: "Search Engine"
+        tag: "external"
+        url: "https://google.com"
+        target: "_blank"
+      - name: "GitHub"
+        icon: "fab fa-github"
+        subtitle: "Code Hosting"
+        url: "https://github.com"
+        target: "_blank"

@@ -23,6 +23,10 @@
             <span class="headline">{{ config.subtitle }}</span>
             <h1>{{ config.title }}</h1>
           </div>
+          <div class="header-widgets">
+            <ClockWidget />
+            <WeatherWidget />
+          </div>
         </div>
       </section>
 
@@ -114,6 +118,8 @@ import SearchInput from "./components/SearchInput.vue";
 import SettingToggle from "./components/SettingToggle.vue";
 import DarkMode from "./components/DarkMode.vue";
 import DynamicTheme from "./components/DynamicTheme.vue";
+import ClockWidget from "./components/ClockWidget.vue";
+import WeatherWidget from "./components/WeatherWidget.vue";
 
 import defaultConfig from "./assets/defaults.yml?raw";
 
@@ -129,6 +135,8 @@ export default {
     SettingToggle,
     DarkMode,
     DynamicTheme,
+    ClockWidget,
+    WeatherWidget,
   },
   data: function () {
     return {
@@ -286,3 +294,40 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+#bighead {
+  .first-line {
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+  }
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-title {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+  margin-right: auto; /* Push widgets to the right */
+}
+
+.header-widgets {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+}
+</style>
