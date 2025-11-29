@@ -30,7 +30,8 @@ async function handleRequest(request) {
     console.log(`[Debug] Request: ${request.method} ${url.pathname}`);
 
     // 1. 忽略特定静态资源，避免认证循环
-    const ignorePaths = ["/favicon.ico", "/robots.txt", "/assets/"];
+    // 添加 /resources/, /icons/, /manifest.json 等路径
+    const ignorePaths = ["/favicon.ico", "/robots.txt", "/assets/", "/resources/", "/icons/", "/manifest.json"];
     if (ignorePaths.some(path => url.pathname.startsWith(path))) {
         console.log(`[Debug] Ignoring path: ${url.pathname}`);
         return fetch(request); // 直接返回静态资源
