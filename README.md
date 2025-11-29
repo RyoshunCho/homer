@@ -141,3 +141,21 @@ pnpm build
 ```
 
 Then your dashboard is ready to use in the `/dist` directory.
+
+## Deployment
+
+### Cloudflare Pages
+
+1. Fork this repository.
+2. Log in to the Cloudflare dashboard and select your account.
+3. In Account Home, select **Workers & Pages** > **Create application** > **Pages** > **Connect to Git**.
+4. Select the repository you created.
+5. In the **Set up builds and deployments** section, the following settings should be automatically detected:
+   - **Framework preset**: `Vue`
+   - **Build command**: `pnpm build`
+   - **Build output directory**: `dist`
+6. Click **Save and Deploy**.
+
+> [!NOTE]
+> This repository includes a `wrangler.toml` file for Cloudflare Pages configuration. The `config.yml` file is tracked in git to ensure it is available during the build process.
+
