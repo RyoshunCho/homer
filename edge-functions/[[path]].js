@@ -30,7 +30,6 @@ async function handleRequest(request) {
     console.log(`[Debug] Request: ${request.method} ${url.pathname}`);
 
     // 1. 忽略特定静态资源，避免认证循环
-    // 添加 /resources/, /icons/, /manifest.json 等路径
     const ignorePaths = ["/favicon.ico", "/robots.txt", "/assets/", "/resources/", "/icons/", "/manifest.json"];
     if (ignorePaths.some(path => url.pathname.startsWith(path))) {
         console.log(`[Debug] Ignoring path: ${url.pathname}`);
@@ -90,7 +89,8 @@ function redirectToLarkAuth() {
         status: 302,
         headers: {
             "Location": larkAuthUrl.toString(),
-            "Cache-Control": "no-cache"
+            "Cache-Control": "no-cache",
+            "X-Debug-Auth": "redirecting"
         }
     });
 }
