@@ -8,7 +8,7 @@ logo: "logo.png"
 # icon: "fas fa-skull-crossbones" # Optional icon
 
 header: true
-footer: '<p>有问题请联系 shunsuke.hayashi@lodgegeek.com</p>' # set false if you want to hide it.
+footer: '<p>有问题请联系 <a href="mailto:shunsuke.hayashi@lodgegeek.com">shunsuke.hayashi@lodgegeek.com</a></p><p>Powered by LodgeGeek. inc with ❤️‍🔥</p>' # set false if you want to hide it.
 
 # Optional theme customization
 theme: default
