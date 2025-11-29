@@ -27,25 +27,34 @@ export default function onRequest(context) {
 // ======================== 核心处理逻辑 ========================
 async function handleRequest(request) {
     const url = new URL(request.url);
+    console.log(`[Debug] Request: ${request.method} ${url.pathname}`);
 
     // 1. 忽略特定静态资源，避免认证循环
     const ignorePaths = ["/favicon.ico", "/robots.txt", "/assets/"];
     if (ignorePaths.some(path => url.pathname.startsWith(path))) {
+        console.log(`[Debug] Ignoring path: ${url.pathname}`);
         return fetch(request); // 直接返回静态资源
     }
 
     // 2. 检查是否已登录（验证Cookie）
     const isLoggedIn = checkLoginCookie(request);
+    console.log(`[Debug] Login status: ${isLoggedIn}`);
+
     if (isLoggedIn) {
-        return fetch(request); // 已登录，返回静态页面
+        const response = await fetch(request);
+        const newResponse = new Response(response.body, response);
+        newResponse.headers.set("X-Debug-Auth", "logged_in");
+        return newResponse;
     }
 
     // 3. 处理Lark认证回调
     if (url.pathname === "/api/auth.js") {
+        console.log(`[Debug] Handling callback`);
         return handleLarkCallback(url);
     }
 
     // 4. 未登录，跳转到Lark授权页面
+    console.log(`[Debug] Redirecting to Lark`);
     return redirectToLarkAuth();
 }
 
