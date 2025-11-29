@@ -82,7 +82,7 @@ function checkLoginCookie(request) {
 function redirectToLarkAuth() {
     const larkAuthUrl = new URL("https://open.larksuite.com/open-apis/authen/v1/index");
     larkAuthUrl.searchParams.set("app_id", CONFIG.LARK_APP_ID);
-    larkAuthUrl.searchParams.set("redirect_uri", encodeURIComponent(CONFIG.LARK_REDIRECT_URI));
+    larkAuthUrl.searchParams.set("redirect_uri", CONFIG.LARK_REDIRECT_URI);
     larkAuthUrl.searchParams.set("response_type", "code");
 
     return new Response(null, {
