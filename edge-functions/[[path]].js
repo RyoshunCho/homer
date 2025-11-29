@@ -14,7 +14,7 @@ const CONFIG = {
         path: "/",
         httpOnly: true,
         secure: true,
-        sameSite: "Strict"
+        sameSite: "Lax"
     }
 };
 
