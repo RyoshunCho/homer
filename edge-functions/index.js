@@ -107,12 +107,13 @@ async function handleLarkCallback(url) {
     try {
         // 换取access_token
         const accessTokenData = await getLarkAccessToken(code);
-        if (!accessTokenData.access_token) {
+        const accessToken = accessTokenData.data?.access_token;
+        if (!accessToken) {
             return new Response(`Lark认证失败：${accessTokenData.msg || "获取AccessToken失败"}`, { status: 401 });
         }
 
         // 获取用户信息
-        const userInfo = await getLarkUserInfo(accessTokenData.access_token);
+        const userInfo = await getLarkUserInfo(accessToken);
         if (!userInfo || !userInfo.email) {
             return new Response("Lark认证失败：无法获取用户信息", { status: 401 });
         }
