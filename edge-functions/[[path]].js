@@ -39,7 +39,13 @@ async function handleRequest(request) {
         return fetch(request); // 直接返回靜態資源
     }
 
-    // 2. 檢查是否已登錄（驗證Cookie）
+    // 2. 処理ログアウトリクエスト (最優先)
+    if (url.pathname === "/logout" || url.pathname === "/logout/") {
+        console.log(`[Debug] Handling logout`);
+        return handleLogout();
+    }
+
+    // 3. 檢查是否已登錄（驗證Cookie）
     const isLoggedIn = checkLoginCookie(request);
     console.log(`[Debug] Login status: ${isLoggedIn}`);
 
@@ -66,19 +72,13 @@ async function handleRequest(request) {
         });
     }
 
-    // 3. 處理Lark認證回調
+    // 5. 處理Lark認證回調
     if (url.pathname === "/auth/callback") {
         console.log(`[Debug] Handling callback`);
         return handleLarkCallback(url);
     }
 
-    // 4. 処理ログアウトリクエスト (末尾スラッシュも許容)
-    if (url.pathname === "/logout" || url.pathname === "/logout/") {
-        console.log(`[Debug] Handling logout`);
-        return handleLogout();
-    }
-
-    // 5. 未登錄，跳轉到Lark授權頁面
+    // 6. 未登錄，跳轉到Lark授權頁面
     console.log(`[Debug] Redirecting to Lark`);
     return redirectToLarkAuth();
 }
