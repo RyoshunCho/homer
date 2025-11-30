@@ -63,7 +63,13 @@ async function handleRequest(request) {
         const newHeaders = new Headers(response.headers);
         newHeaders.delete("Content-Encoding");
         newHeaders.delete("Content-Length");
+        newHeaders.delete("Content-Length");
         newHeaders.set("X-Debug-Auth", "logged_in");
+
+        // Prevent caching of the authenticated page to avoid FOUC (Flash of Unauthenticated Content)
+        newHeaders.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+        newHeaders.set("Pragma", "no-cache");
+        newHeaders.set("Expires", "0");
 
         return new Response(response.body, {
             status: response.status,
