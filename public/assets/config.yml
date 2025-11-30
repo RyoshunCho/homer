@@ -78,18 +78,46 @@ services:
   - name: "Applications"
     icon: "fas fa-cloud"
     items:
+
       - name: "Hostex"
         logo: "https://hostex.io/app/assets/status/favicon.png?v=2"
         #icon: "fa-solid fa-book"
         subtitle: "PMS"
         url: "https://hostex.io/app/login/hello?page_type=login"
         doc: "https://docs.google.com"
+
       - name: "Pricelabs"
         logo: "https://hello.pricelabs.co/wp-content/uploads/2023/09/cropped-Pricelabs-Logo-element.png"
         #icon: "fa-solid fa-book"
         subtitle: "Dynamic pricing platform | 动态定价平台"
         url: "https://pricelabs.co/signin"
         doc: "https://docs.google.com"
+
+      - name: "TTlock Web"
+        logo: "https://api.sciener.cn/resources/img/ttlockLogo.png"
+        #icon: "fa-solid fa-book"
+        subtitle: "智能锁管理系统后台"
+        url: "https://lock2.ttlock.com/"
+        doc: "https://docs.google.com"        
+
+
+  - name: "Members"
+    icon: "fa-solid fa-people-group"
+    items:
+      - name: "丁良俊(林俊介)"
+        logo: "https://hostex.io/app/assets/status/favicon.png?v=2"
+        #icon: "fa-solid fa-book"
+        subtitle: "CEO"
+        url: "https://hostex.io/app/login/hello?page_type=login"
+        doc: "https://docs.google.com"
+      - name: "张莹祺(QiQi)"
+        logo: "https://hello.pricelabs.co/wp-content/uploads/2023/09/cropped-Pricelabs-Logo-element.png"
+        #icon: "fa-solid fa-book"
+        subtitle: "Dynamic pricing platform | 动态定价平台"
+        url: "https://pricelabs.co/signin"
+        doc: "https://docs.google.com"
+
+
 #      - name: "Get started"
 #        icon: "fa-solid fa-download"
 #        subtitle: "Start using Homer in a few minutes"
