@@ -29,6 +29,9 @@ async function handleRequest(request) {
     const url = new URL(request.url);
     console.log(`[Debug] Request: ${request.method} ${url.pathname}`);
 
+    // Debug header to verify function execution
+    const debugHeaders = { "X-Edge-Function-Ver": "logout-fix-v1" };
+
     // 1. 忽略特定靜態資源，避免認證循環
     const ignorePaths = ["/favicon.ico", "/robots.txt", "/assets/", "/resources/", "/icons/", "/manifest.json"];
     if (ignorePaths.some(path => url.pathname.startsWith(path))) {
@@ -69,8 +72,8 @@ async function handleRequest(request) {
         return handleLarkCallback(url);
     }
 
-    // 4. 處理ログアウトリクエスト
-    if (url.pathname === "/logout") {
+    // 4. 処理ログアウトリクエスト (末尾スラッシュも許容)
+    if (url.pathname === "/logout" || url.pathname === "/logout/") {
         console.log(`[Debug] Handling logout`);
         return handleLogout();
     }
@@ -112,7 +115,8 @@ function redirectToLarkAuth() {
         headers: {
             "Location": larkAuthUrl.toString(),
             "Cache-Control": "no-cache",
-            "X-Debug-Auth": "redirecting"
+            "X-Debug-Auth": "redirecting",
+            "X-Edge-Function-Ver": "logout-fix-v1"
         }
     });
 }
@@ -280,7 +284,8 @@ function handleLogout() {
         headers: {
             "Location": "/", // ログイン画面にリダイレクト
             "Set-Cookie": cookieStr,
-            "Cache-Control": "no-cache"
+            "Cache-Control": "no-cache",
+            "X-Edge-Function-Ver": "logout-fix-v1"
         }
     });
 }
