@@ -58,6 +58,9 @@ links:
 #    icon: "fab fa-github"
 #    url: "https://github.com/bastienwirtz/homer"
 #    target: "_blank" # optional html a tag target attribute
+  - name: "公司管网"
+    icon: "fas fa-display"
+    url: "https://www.lodgegeek.com/"
   - name: "Wiki"
     icon: "fas fa-book"
     url: "https://www.wikipedia.org/"
