@@ -285,13 +285,20 @@ async function getLarkUserInfo(accessToken) {
 function handleLogout() {
     // Cookie を削除（Max-Age=0 に設定）
     const cookieStr = buildLogoutCookieString();
+
+    // 直接 Lark の認証ページにリダイレクトして、トップページでの FOUC を防ぐ
+    const larkAuthUrl = new URL("https://open.larksuite.com/open-apis/authen/v1/index");
+    larkAuthUrl.searchParams.set("app_id", CONFIG.LARK_APP_ID);
+    larkAuthUrl.searchParams.set("redirect_uri", CONFIG.LARK_REDIRECT_URI);
+    larkAuthUrl.searchParams.set("response_type", "code");
+
     return new Response(null, {
         status: 302,
         headers: {
-            "Location": "/", // ログイン画面にリダイレクト
+            "Location": larkAuthUrl.toString(),
             "Set-Cookie": cookieStr,
-            "Cache-Control": "no-cache",
-            "X-Edge-Function-Ver": "logout-fix-v1"
+            "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+            "X-Edge-Function-Ver": "logout-direct-v2"
         }
     });
 }
