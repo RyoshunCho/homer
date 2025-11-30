@@ -28,3 +28,7 @@ yarn-error.log*
 # Specific Agent file
 CLAUDE.md
 GEMINI.md
+
+# Font files (self-hosted CJK fonts)
+public/assets/fonts/*.woff2
+public/assets/fonts/*.css
