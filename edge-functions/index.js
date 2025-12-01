@@ -91,12 +91,13 @@ function checkLoginCookie(request) {
  */
 function redirectToLogin(currentUrl) {
     const loginUrl = new URL(`${CONFIG.AUTH_WORKER_URL}/login`);
-    logoutUrl.searchParams.set("redirect_to", currentUrl.origin);
+    // Pass the current URL as the redirect_to target
+    loginUrl.searchParams.set("redirect_to", currentUrl.toString());
 
     return new Response(null, {
         status: 302,
         headers: {
-            "Location": logoutUrl.toString(),
+            "Location": loginUrl.toString(),
             "Cache-Control": "no-cache"
         }
     });
