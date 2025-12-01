@@ -24,7 +24,7 @@
               class="navbar-item"
               rel="noreferrer"
               :href="link.url"
-              :target="link.target"
+              :target="link.target || '_blank'"
             >
               <i v-if="link.icon" :class="['fa-fw', link.icon]"></i>
               {{ link.name }}

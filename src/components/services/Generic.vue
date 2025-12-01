@@ -12,7 +12,7 @@
         <span style="margin-right: 4px">👉</span>
         <i class="fas fa-book"></i>
       </a>
-      <a :href="item.url" :target="item.target" rel="noreferrer">
+      <a :href="item.url" :target="item.target || '_blank'" rel="noreferrer">
         <div class="card-content">
           <div :class="mediaClass">
             <slot name="icon">
@@ -36,7 +36,7 @@
                     :key="linkIndex"
                     :style="`background-color:${link.color};`"
                     :href="link.url"
-                    :target="link.target"
+                    :target="link.target || '_blank'"
                     rel="noreferrer"
                   >
                     <span v-if="link.icon"
