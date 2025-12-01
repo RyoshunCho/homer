@@ -37,68 +37,32 @@ async function handleRequest(request) {
 
     // 3. Check Authentication (Cookie)
     const isLoggedIn = checkLoginCookie(request);
-    console.log(`[Debug] Login status: ${isLoggedIn}`);
+    function checkLoginCookie(request) {
+        const cookieHeader = request.headers.get("Cookie") || "";
+        if (!cookieHeader) return false;
 
-    if (isLoggedIn) {
-        // 4. Authenticated: Proceed to origin
-        const response = await fetch(request);
+        const cookieParts = cookieHeader.split("; ").reduce((acc, part) => {
+            const [key, value] = part.split("=");
+            if (key && value) acc[key.trim()] = value.trim();
+            return acc;
+        }, {});
 
-        // Reconstruct headers
-        const newHeaders = new Headers(response.headers);
-        newHeaders.delete("Content-Encoding");
-        newHeaders.delete("Content-Length");
-        newHeaders.set("X-Auth-Status", "logged_in");
-
-        // Prevent caching of authenticated pages
-        newHeaders.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-        newHeaders.set("Pragma", "no-cache");
-        newHeaders.set("Expires", "0");
-
-        return new Response(response.body, {
-            status: response.status,
-            statusText: response.statusText,
-            headers: newHeaders
-        });
+        return !!cookieParts[CONFIG.COOKIE_NAME];
     }
 
-    // 5. Not Authenticated: Redirect to Auth Worker Login
-    return redirectToLogin(url);
-}
+    /**
+     * Redirect to Auth Worker Login
+     */
+    function redirectToLogin(currentUrl) {
+        const loginUrl = new URL(`${CONFIG.AUTH_WORKER_URL}/login`);
+        // Pass the current URL as the redirect_to target
+        loginUrl.searchParams.set("redirect_to", currentUrl.toString());
 
-// ======================== Helper Functions ========================
-
-/**
- * Check if the auth cookie exists
- * Note: We only check for existence here. Real validation happens via /verify in the frontend
- * or could be done here if we could verify the JWT signature (requires secret).
- * For now, we rely on the cookie presence and the frontend /verify call for user info.
- */
-function checkLoginCookie(request) {
-    const cookieHeader = request.headers.get("Cookie") || "";
-    if (!cookieHeader) return false;
-
-    const cookieParts = cookieHeader.split("; ").reduce((acc, part) => {
-        const [key, value] = part.split("=");
-        if (key && value) acc[key.trim()] = value.trim();
-        return acc;
-    }, {});
-
-    return !!cookieParts[CONFIG.COOKIE_NAME];
-}
-
-/**
- * Redirect to Auth Worker Login
- */
-function redirectToLogin(currentUrl) {
-    const loginUrl = new URL(`${CONFIG.AUTH_WORKER_URL}/login`);
-    // Pass the current URL as the redirect_to target
-    loginUrl.searchParams.set("redirect_to", currentUrl.toString());
-
-    return new Response(null, {
-        status: 302,
-        headers: {
-            "Location": loginUrl.toString(),
-            "Cache-Control": "no-cache"
-        }
-    });
-}
+        return new Response(null, {
+            status: 302,
+            headers: {
+                "Location": loginUrl.toString(),
+                "Cache-Control": "no-cache"
+            }
+        });
+    }
