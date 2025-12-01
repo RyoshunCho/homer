@@ -31,38 +31,130 @@ async function handleRequest(request) {
     }
 
     // 2.5 Handle Verify Proxy (Bypass CORS)
-    if (url.pathname === "/api/auth/verify") {
+    if (url.pathname.startsWith("/api/auth/verify")) {
         return handleVerifyProxy(request);
     }
 
     // 3. Check Authentication (Cookie)
     const isLoggedIn = checkLoginCookie(request);
-    function checkLoginCookie(request) {
-        const cookieHeader = request.headers.get("Cookie") || "";
-        if (!cookieHeader) return false;
+    console.log(`[Debug] Login status: ${isLoggedIn}`);
 
-        const cookieParts = cookieHeader.split("; ").reduce((acc, part) => {
-            const [key, value] = part.split("=");
-            if (key && value) acc[key.trim()] = value.trim();
-            return acc;
-        }, {});
+    if (isLoggedIn) {
+        // 4. Authenticated: Proceed to origin
+        const response = await fetch(request);
 
-        return !!cookieParts[CONFIG.COOKIE_NAME];
+        // Reconstruct headers
+        const newHeaders = new Headers(response.headers);
+        newHeaders.delete("Content-Encoding");
+        newHeaders.delete("Content-Length");
+        newHeaders.set("X-Auth-Status", "logged_in");
+
+        // Prevent caching of authenticated pages
+        newHeaders.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+        newHeaders.set("Pragma", "no-cache");
+        newHeaders.set("Expires", "0");
+
+        return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: newHeaders
+        });
     }
 
-    /**
-     * Redirect to Auth Worker Login
-     */
-    function redirectToLogin(currentUrl) {
-        const loginUrl = new URL(`${CONFIG.AUTH_WORKER_URL}/login`);
-        // Pass the current URL as the redirect_to target
-        loginUrl.searchParams.set("redirect_to", currentUrl.toString());
+    // 5. Not Authenticated: Redirect to Auth Worker Login
+    return redirectToLogin(url);
+}
 
-        return new Response(null, {
-            status: 302,
+// ======================== Helper Functions ========================
+
+/**
+ * Check if the auth cookie exists
+ */
+function checkLoginCookie(request) {
+    const cookieHeader = request.headers.get("Cookie") || "";
+    if (!cookieHeader) return false;
+
+    const cookieParts = cookieHeader.split("; ").reduce((acc, part) => {
+        const [key, value] = part.split("=");
+        if (key && value) acc[key.trim()] = value.trim();
+        return acc;
+    }, {});
+
+    return !!cookieParts[CONFIG.COOKIE_NAME];
+}
+
+/**
+ * Redirect to Auth Worker Login
+ */
+function redirectToLogin(currentUrl) {
+    const loginUrl = new URL(`${CONFIG.AUTH_WORKER_URL}/login`);
+    // Pass the current URL as the redirect_to target
+    loginUrl.searchParams.set("redirect_to", currentUrl.toString());
+
+    return new Response(null, {
+        status: 302,
+        headers: {
+            "Location": loginUrl.toString(),
+            "Cache-Control": "no-cache"
+        }
+    });
+}
+
+/**
+ * Handle Logout
+ */
+function handleLogout(currentUrl) {
+    const logoutUrl = new URL(`${CONFIG.AUTH_WORKER_URL}/logout`);
+    logoutUrl.searchParams.set("redirect_to", currentUrl.origin);
+
+    return new Response(null, {
+        status: 302,
+        headers: {
+            "Location": logoutUrl.toString(),
+            "Cache-Control": "no-cache"
+        }
+    });
+}
+
+/**
+ * Proxy /api/auth/verify to Auth Worker
+ */
+async function handleVerifyProxy(request) {
+    const targetUrl = `${CONFIG.AUTH_WORKER_URL}/verify`;
+
+    try {
+        const response = await fetch(targetUrl, {
+            method: "GET",
             headers: {
-                "Location": loginUrl.toString(),
+                "Cookie": request.headers.get("Cookie") || "",
+                "Accept": "application/json"
+            },
+            redirect: "manual" // Prevent following redirects
+        });
+
+        // Handle Redirects (3xx) or Unauthorized (401)
+        if (response.status >= 300 || response.status === 401) {
+            console.log(`[Debug] Verify proxy got status: ${response.status}`);
+            return new Response(JSON.stringify({ valid: false, error: `Upstream status: ${response.status}` }), {
+                status: 200, // Return 200 so frontend can parse JSON
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        // Forward successful response
+        return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: {
+                "Content-Type": "application/json",
                 "Cache-Control": "no-cache"
             }
         });
+    } catch (error) {
+        console.error("Verify proxy failed:", error);
+        return new Response(JSON.stringify({ valid: false, error: "Proxy Error" }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+        });
     }
+}
