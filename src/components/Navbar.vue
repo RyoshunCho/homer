@@ -45,6 +45,9 @@
             <a v-else href="/login" class="navbar-item">
               Login
             </a>
+            <a class="navbar-item" @click="refreshConfig" title="Refresh Config">
+              <i class="fas fa-sync-alt"></i>
+            </a>
           </div>
         </div>
       </div>
@@ -72,6 +75,18 @@ export default {
   methods: {
     isSmallScreen: function () {
       return window.matchMedia("screen and (max-width: 1023px)").matches;
+    },
+    refreshConfig: async function () {
+      try {
+        // Fetch config with timestamp to bypass cache
+        await fetch(`/assets/config.yml?t=${Date.now()}`, {
+          cache: "reload",
+        });
+        // Reload the page to reflect changes
+        window.location.reload();
+      } catch (error) {
+        console.error("Failed to refresh config:", error);
+      }
     },
   },
 };

@@ -5,7 +5,9 @@ const CONFIG = {
     // Cookie Name (Must match Auth Worker's cookie)
     COOKIE_NAME: "auth_token",
     // Allowed Email Domain
-    ALLOWED_DOMAIN: "lodgegeek.com"
+    ALLOWED_DOMAIN: "lodgegeek.com",
+    // External Config URL (R2)
+    EXTERNAL_CONFIG_URL: "https://pub-40e4e971626a41c7848a9726fd3fad92.r2.dev/config.yml"
 };
 
 // ======================== Core Logic ========================
@@ -34,6 +36,11 @@ export default async function handleRequest(request) {
     console.log(`[Debug] Login status: ${isLoggedIn}`);
 
     if (isLoggedIn) {
+        // 3.5 Intercept config.yml request
+        if (url.pathname.endsWith("/assets/config.yml")) {
+            return handleConfigProxy(request);
+        }
+
         // 4. Authenticated: Proceed to origin
         const response = await fetch(request);
 
@@ -150,5 +157,38 @@ async function handleVerifyProxy(request) {
             status: 500,
             headers: { "Content-Type": "application/json" }
         });
+    }
+}
+
+/**
+ * Proxy config.yml from External URL
+ */
+async function handleConfigProxy(request) {
+    try {
+        const response = await fetch(CONFIG.EXTERNAL_CONFIG_URL);
+
+        if (!response.ok) {
+            console.error(`[Error] Failed to fetch external config: ${response.status}`);
+            // Fallback to origin if external fails? Or return error?
+            // For now, let's return error to make it obvious
+            return new Response("Failed to load configuration", { status: 502 });
+        }
+
+        const newHeaders = new Headers(response.headers);
+        // Ensure correct content type for YAML
+        newHeaders.set("Content-Type", "text/yaml");
+        // Add auth status header just in case
+        newHeaders.set("X-Auth-Status", "logged_in");
+        // Enable caching for 1 hour to reduce R2 requests
+        newHeaders.set("Cache-Control", "public, max-age=3600");
+
+        return new Response(response.body, {
+            status: 200,
+            headers: newHeaders
+        });
+
+    } catch (error) {
+        console.error("[Error] Config proxy exception:", error);
+        return new Response("Internal Server Error", { status: 500 });
     }
 }
