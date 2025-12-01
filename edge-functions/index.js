@@ -30,6 +30,11 @@ async function handleRequest(request) {
         return handleLogout(url);
     }
 
+    // 2.5 Handle Verify Proxy (Bypass CORS)
+    if (url.pathname === "/api/auth/verify") {
+        return handleVerifyProxy(request);
+    }
+
     // 3. Check Authentication (Cookie)
     const isLoggedIn = checkLoginCookie(request);
     console.log(`[Debug] Login status: ${isLoggedIn}`);
@@ -86,26 +91,6 @@ function checkLoginCookie(request) {
  */
 function redirectToLogin(currentUrl) {
     const loginUrl = new URL(`${CONFIG.AUTH_WORKER_URL}/login`);
-    // Pass the current URL as the redirect_to target
-    loginUrl.searchParams.set("redirect_to", currentUrl.toString());
-
-    return new Response(null, {
-        status: 302,
-        headers: {
-            "Location": loginUrl.toString(),
-            "Cache-Control": "no-cache"
-        }
-    });
-}
-
-/**
- * Handle Logout
- */
-function handleLogout(currentUrl) {
-    const logoutUrl = new URL(`${CONFIG.AUTH_WORKER_URL}/logout`);
-    // After logout, redirect back to the root of this app (which will then redirect to login)
-    // or we can let Auth Worker decide where to go (usually its own login page).
-    // Let's set it to return to this app's root.
     logoutUrl.searchParams.set("redirect_to", currentUrl.origin);
 
     return new Response(null, {

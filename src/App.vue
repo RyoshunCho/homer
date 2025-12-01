@@ -296,8 +296,8 @@ export default {
     },
     checkAuth: async function () {
       try {
-        const AUTH_WORKER_URL = "https://auth.lodgegeek.com";
-        const res = await fetch(`${AUTH_WORKER_URL}/verify`, {
+        // Use local proxy to avoid CORS
+        const res = await fetch(`/api/auth/verify`, {
           method: "GET",
           credentials: "include",
         });
