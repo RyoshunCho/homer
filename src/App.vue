@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="config"
+    v-if="config && isAuthChecked && isAuthenticated"
     id="app"
     :class="[
       `theme-${config.theme}`,
@@ -104,6 +104,9 @@
       </div>
     </footer>
   </div>
+  <div v-else-if="!isAuthChecked" class="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
 </template>
 
 <script>
@@ -152,6 +155,8 @@ export default {
       isDark: null,
       showMenu: false,
       user: null, // Add user property
+      isAuthChecked: false,
+      isAuthenticated: false,
     };
   },
   computed: {
@@ -306,16 +311,23 @@ export default {
           const data = await res.json();
           if (data.valid) {
             this.user = data.payload;
+            this.isAuthenticated = true;
             console.log("User authenticated:", this.user);
+          } else {
+            this.redirectToLogin();
           }
         } else if (res.status === 401) {
-             // Optional: Redirect to login if strict auth is required
-             // window.location.href = `${AUTH_WORKER_URL}/login?redirect_to=${window.location.href}`;
-             console.log("User not authenticated");
+          this.redirectToLogin();
         }
       } catch (error) {
         console.error("Auth check failed:", error);
+      } finally {
+        this.isAuthChecked = true;
       }
+    },
+    redirectToLogin() {
+      const loginUrl = "https://auth.lodgegeek.com/login";
+      window.location.href = `${loginUrl}?redirect_to=${encodeURIComponent(window.location.href)}`;
     },
   },
 };
@@ -356,4 +368,37 @@ export default {
     margin-top: 10px;
   }
 }
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+@media (prefers-color-scheme: dark) {
+  .loading-overlay {
+    background: #121212;
+  }
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(128, 128, 128, 0.1);
+  border-radius: 50%;
+  border-top-color: #3367d6;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 </style>

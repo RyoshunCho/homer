@@ -75,6 +75,7 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: null,
+        globIgnores: ["**/index.html"],
       },
     }),
   ],

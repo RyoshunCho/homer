@@ -15,7 +15,7 @@ export default async function handleRequest(request) {
 
     // 1. Ignore static resources
     const ignorePaths = ["/favicon.ico", "/robots.txt", "/assets/", "/resources/", "/icons/", "/manifest.json"];
-    if (ignorePaths.some(path => url.pathname.startsWith(path))) {
+    if (ignorePaths.some(path => url.pathname.startsWith(path)) && !url.pathname.includes("config.yml")) {
         return fetch(request);
     }
 
