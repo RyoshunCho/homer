@@ -32,6 +32,19 @@
           </div>
           <div class="navbar-end">
             <slot></slot>
+            <div v-if="user" class="navbar-item has-dropdown is-hoverable">
+              <a class="navbar-link">
+                {{ user.name }}
+              </a>
+              <div class="navbar-dropdown is-right">
+                <a href="/logout" class="navbar-item">
+                  Logout
+                </a>
+              </div>
+            </div>
+            <a v-else href="/login" class="navbar-item">
+              Login
+            </a>
           </div>
         </div>
       </div>
@@ -48,6 +61,7 @@ export default {
       default: false,
     },
     links: Array,
+    user: Object,
   },
   emits: ["navbar-toggle"],
   computed: {

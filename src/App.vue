@@ -33,6 +33,7 @@
       <Navbar
         :open="showMenu"
         :links="config.links"
+        :user="user"
         @navbar-toggle="showMenu = !showMenu"
       >
         <DarkMode
@@ -150,6 +151,7 @@ export default {
       vlayout: true,
       isDark: null,
       showMenu: false,
+      user: null, // Add user property
     };
   },
   computed: {
@@ -159,6 +161,7 @@ export default {
   },
   created: async function () {
     this.buildDashboard();
+    this.checkAuth(); // Call checkAuth
     window.onhashchange = this.buildDashboard;
     this.loaded = true;
     console.info(`Homer v${__APP_VERSION__}`);
@@ -290,6 +293,29 @@ export default {
       let style = document.createElement("style");
       style.appendChild(document.createTextNode(css));
       document.head.appendChild(style);
+    },
+    checkAuth: async function () {
+      try {
+        const AUTH_WORKER_URL = "https://auth.lodgegeek.com";
+        const res = await fetch(`${AUTH_WORKER_URL}/verify`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.valid) {
+            this.user = data.payload;
+            console.log("User authenticated:", this.user);
+          }
+        } else if (res.status === 401) {
+             // Optional: Redirect to login if strict auth is required
+             // window.location.href = `${AUTH_WORKER_URL}/login?redirect_to=${window.location.href}`;
+             console.log("User not authenticated");
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+      }
     },
   },
 };
