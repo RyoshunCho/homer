@@ -8236,8 +8236,12 @@
 /* =================================================================== */
 
 /* Apply Noto Sans CJK as the primary font family */
-body,
-body * {
+/* Exclude Font Awesome icons from font-family override */
+body {
+  font-family: 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans KR', sans-serif !important;
+}
+
+body *:not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands) {
   font-family: 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans KR', sans-serif !important;
 }
 
