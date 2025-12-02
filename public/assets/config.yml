@@ -11,6 +11,13 @@ header: true
 footer: '<p>有问题请联系 <a href="mailto:shunsuke.hayashi@lodgegeek.com">shunsuke.hayashi@lodgegeek.com</a> | Powered by <a href="https://lodgegeek.com">LodgeGeek.inc</a> with ❤️</p>' # set false if you want to hide it.
 
 # Optional theme customization
+defaults:
+  # columns, list
+  layout: columns
+  # auto, light, dark
+  
+  colorTheme: light 
+
 theme: default
 
 # Optional theme customization (color overrrides)
@@ -43,13 +50,6 @@ colors:
     link: "#3273dc"
     link-hover: "#ffdd57"
 
-# Optional message
-message:
-  #url: https://b4bz.io
-  style: "is-dark" # See https://bulma.io/documentation/components/message/#colors for styling options.
-  title: "Demo !"
-  icon: "fa fa-grin"
-  content: "This is a dummy homepage demo. <br /> Find more information on <a href='https://github.com/bastienwirtz/homer'>github.com/bastienwirtz/homer</a>"
 
 # Optional navbar
 # links: [] # Allows for navbar (dark mode, layout, and search) without any links
@@ -59,17 +59,27 @@ links:
 #    url: "https://github.com/bastienwirtz/homer"
 #    target: "_blank" # optional html a tag target attribute
   - name: "公司管网"
-    icon: "fas fa-display"
+    icon: "fas fa-desktop"
     url: "https://www.lodgegeek.com/"
-  - name: "Wiki"
+
+  - name: "公司规章(制作中)"
     icon: "fas fa-book"
-    url: "https://www.wikipedia.org/"
+    url: "https://www.lodgegeek.com/"
+#  - name: "Wiki"
+#    icon: "fas fa-book"
+#    url: "https://www.wikipedia.org/"
 
   # this will link to a second homer page that will load config from additional-page.yml and keep default config values as in config.yml file
   # see url field and assets/additional-page.yml.dist used in this example:
   #- name: "another page!"
   #  icon: "fas fa-file-alt"
   #  url: "#additional-page" 
+
+# Optional message
+message:
+  style: "is-dark" # See https://bulma.io/documentation/components/message/#colors for styling options.
+  title: "【公告栏】👋 Welcome!"
+  content: "to LodgeGeek Navi"
 
 # Services
 # First level array represent a group.
@@ -89,33 +99,242 @@ services:
       - name: "Pricelabs"
         logo: "https://hello.pricelabs.co/wp-content/uploads/2023/09/cropped-Pricelabs-Logo-element.png"
         #icon: "fa-solid fa-book"
-        subtitle: "Dynamic pricing platform | 动态定价平台"
+        subtitle: "动态定价系统 | Dynamic Pricing"
         url: "https://pricelabs.co/signin"
-        doc: "https://docs.google.com"
+        #doc: "https://docs.google.com"
 
       - name: "TTlock Web"
         logo: "https://api.sciener.cn/resources/img/ttlockLogo.png"
         #icon: "fa-solid fa-book"
-        subtitle: "智能锁管理系统后台"
+        subtitle: "智能锁管理系统后台 | Smart Lock Admin"
         url: "https://lock2.ttlock.com/"
-        doc: "https://docs.google.com"        
+        doc: "https://docs.google.com"  
+
+      - name: "民泊制度運営システム（事業者）"
+        logo: "https://www.minpaku.mlit.go.jp/jigyo/servlet/servlet.ImageServer?id=0157F000000a5Q1&oid=00D7F000001xYFI&lastMod=1520255236000"
+        #icon: "fa-solid fa-book"
+        subtitle: "日本政府民泊180天報告"
+        url: "https://www.minpaku.mlit.go.jp/jigyo/login"
+        doc: "https://docs.google.com"     
+
+      - name: "INVOY"
+        logo: "https://www.itmedia.co.jp/itselect/_next/image/?url=https%3A%2F%2Fassets.hnavi.co.jp%2Fuploads%2Fafba5996-fc40-4ecb-be94-9d285a617cbe.png&w=256&q=75"
+        subtitle: "日本標準 請求書|見積書|領収書 制作"
+        url: "https://www.invoy.jp/login"
+        doc: "https://docs.google.com"
+
+      - name: "NextCloud"
+        logo: "https://images.icon-icons.com/2407/PNG/512/nextcloud_icon_146137.png"
+        subtitle: "公司标准大容量文件共享系统"
+        url: "https://nextcloud.lodgegeek.com/"
+        doc: "https://docs.google.com"
+
+      - name: "VaultWarden"
+        logo: "https://assets.streamlinehq.com/image/private/w_300,h_300,ar_1/f_auto/v1/icons/logos/vaultwarden-ns52zbeqsxclzh9eke52cj.png/vaultwarden-eawsbmiuegj01cry9sop.png?_a=DATAg1AAZAA0"
+        subtitle: "公司标准账户密码共享系统"
+        url: "https://vault.lodgegeek.com/"
+        doc: "https://docs.google.com"
 
 
-  - name: "Members"
-    icon: "fa-solid fa-people-group"
+  - name: "Windows APP"
+    icon: "fab fa-windows"
     items:
-      - name: "丁良俊(林俊介)"
+
+      - name: "WireGuard(VPN)"
+        logo: "https://images.icon-icons.com/2699/PNG/512/wireguard_logo_icon_168760.png"
+        subtitle: "公司标准VPN客户端"
+        url: ""
+        doc: "https://docs.google.com"     
+
+      - name: "Lark"
+        logo: "https://p16-hera-sg.larksuitecdn.com/tos-alisg-i-hn4qzgxq2n-sg/ddf17faaa6714020808de8f5da0eb92d.png~tplv-hn4qzgxq2n-png:0:0.png"
+        subtitle: "国际版Lark, 公司标准办公软件"
+        url: "https://www.larksuite.com/"
+        #doc: "https://docs.google.com"     
+
+      - name: "飞书"
+        logo: "https://p1-hera.feishucdn.com/tos-cn-i-jbbdkfciu3/eff71c9398c04ebd8452d748646fc1e8.png~tplv-jbbdkfciu3-png:0:0.png"
+        subtitle: "中国大陆版飞书"
+        url: "https://www.feishu.cn/"
+        #doc: "https://docs.google.com"   
+
+      - name: "腾讯会议"
+        logo: "https://dldir1.qq.com/download/packages/logo3.png"
+        subtitle: "公司标准远程会议工具"
+        url: "https://meeting.tencent.com/"
+
+      - name: "沉浸式翻译Chrome插件"
+        logo: "https://immersivetranslate.cn/img/logo.png"
+        subtitle: "不要以看不懂日语/英语为借口"
+        url: "https://immersivetranslate.cn/manual-chrome-extension/zip/"
+        doc: "https://www.bilibili.com/video/BV1z6s6eNEvf/"  
+
+      - name: "Rust Desk 客户端"
+        logo: "https://rustdesk.com/_astro/logo.BKb61-he.svg"
+        subtitle: "公司标准远程桌面操控器|Remote Desktop"
+        url: "https://rustdesk.com/zh-cn/"
+        doc: "https://docs.google.com"
+
+      - name: "Chrome"
+        logo: "https://www.google.cn/chrome/static/images/chrome-logo-m100.svg"
+        subtitle: "业务上请使用Chrome浏览器"
+        url: "https://www.google.cn/chrome/index.html"
+        #doc: "https://docs.google.com"    
+
+  - name: "iPhone App"
+    icon: "fab fa-apple"
+    items:
+
+      - name: "Hostex App"
         logo: "https://hostex.io/app/assets/status/favicon.png?v=2"
         #icon: "fa-solid fa-book"
-        subtitle: "CEO"
-        url: "https://hostex.io/app/login/hello?page_type=login"
+        subtitle: "PMS"
+        url: "https://apps.apple.com/jp/app/hostex/id1516632984"
         doc: "https://docs.google.com"
-      - name: "张莹祺(QiQi)"
-        logo: "https://hello.pricelabs.co/wp-content/uploads/2023/09/cropped-Pricelabs-Logo-element.png"
-        #icon: "fa-solid fa-book"
-        subtitle: "Dynamic pricing platform | 动态定价平台"
-        url: "https://pricelabs.co/signin"
+
+      - name: "WireGuard(VPN)"
+        logo: "https://images.icon-icons.com/2699/PNG/512/wireguard_logo_icon_168760.png"
+        subtitle: "VPN客户端APP(需要非大陆Apple ID)"
+        url: "https://itunes.apple.com/us/app/wireguard/id1441195209?ls=1&mt=8"
         doc: "https://docs.google.com"
+        quick:
+          - name: "取得美区Apple ID"
+            url: "https://www.bilibili.com/video/BV1zw4Hz1E2S"
+            target: "_blank"
+
+      - name: "TTLock | 通通锁"
+        logo: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/e3/3b/f7/e33bf7ef-3a08-5686-8750-bb105d88743b/AppIcon-0-0-1x_U007emarketing-0-8-0-sRGB-85-220.png/400x400ia-75.webp"
+        subtitle: "智能锁APP"
+        url: "https://apps.apple.com/cn/app/%E9%80%9A%E9%80%9A%E9%94%81/id1033046018"
+        doc: "https://docs.google.com"
+
+      - name: "TAPO"
+        logo: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/1f/9f/4e/1f9f4e73-94d4-a1a0-3cbf-ac409fa4001c/AppIcon-0-0-1x_U007epad-0-11-0-sRGB-85-220.png/400x400ia-75.webp"
+        subtitle: "网络摄像头APP"
+        url: "https://apps.apple.com/jp/app/tp-link-tapo/id1472718009"
+        doc: "https://docs.google.com"
+        quick:
+          - name: "取得美区Apple ID"
+            url: "https://www.bilibili.com/video/BV1zw4Hz1E2S"
+            target: "_blank"
+
+  - name: "OTA"
+    icon: "fas fa-plane"
+    items:
+      #---------------------------------------------#
+      - name: "Airbnb"
+        logo: "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/a3/4e/94/a34e948f-3b1b-ab16-3111-a27a686c9f84/Placeholder.mill/400x400bb-75.webp"
+        subtitle: ""
+        url: "https://www.airbnb.com"
+        #doc: "https://docs.google.com"
+      #---------------------------------------------#
+      - name: "Booking.com"
+        logo: "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/f9/9d/a2/f99da23a-5109-a011-0542-fd843e49a5c8/Placeholder.mill/400x400bb-75.webp"
+        subtitle: ""
+        url: "https://www.booking.com"
+        quick:
+          - name: "Admin后台入口"
+            url: "https://admin.booking.com/"
+            target: "_blank"
+      #---------------------------------------------#
+      - name: "途家Tujia"
+        logo: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/df/1e/c3/df1ec346-7e7a-2c5c-2d18-a6bd006378fc/AppIcon-0-0-1x_U007emarketing-0-6-0-85-220.png/96x96ia-75.webp"
+        subtitle: ""
+        url: "https://www.tujia.com"
+        quick:
+          - name: "Admin后台APP"
+            url: "https://apps.apple.com/jp/app/tujia-host/id938591139"
+            target: "_blank"
+      #---------------------------------------------#
+      - name: "Vrbo"
+        logo: "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/3a/7a/9a/3a7a9a62-e265-4754-7efa-756d75cfa190/Placeholder.mill/400x400bb-75.webp"
+        subtitle: ""
+        url: "https://www.vrbo.com"
+      #---------------------------------------------#
+      - name: "Trip.com"
+        logo: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/16/14/fe/1614feab-55e3-0a12-9687-9d17ef6d1622/AppIcon-0-0-1x_U007epad-0-1-0-0-85-220.png/96x96ia-75.webp"
+        subtitle: ""
+        url: "https://www.trip.com"
+        quick:
+          - name: "Trip后台入口(ebooking)"
+            url: "https://ebooking.trip.com/login/index"
+            target: "_blank"
+      #---------------------------------------------#
+      - name: "ACO"
+        logo: "https://www.aco.co.jp/images/logo-aco.svg"
+        subtitle: ""
+        url: "https://www.aco.co.jp/"
+        quick:
+          - name: "Admin后台入口"
+            url: ""
+            target: "_blank"
+      #---------------------------------------------#
+
+
+
+  - name: "各物件管理"
+    icon: "fas fa-house"
+    items:
+
+  - name: "金融|会计|税務"
+    icon: "fas fa-money-bill-trend-up"
+    items:
+
+      - name: "经营Tool(多维表格Base)"
+        logo: "https://ai-bio.cn/wp-content/uploads/2025/09/feishu-ai-register-logo.png"
+        subtitle: "公司财务统计工具"
+        url: "https://lodgegeek.jp.larksuite.com/base/IrBPb9KslaX58gsmPVCja38mphb?table=blkPHMu4dE5ZY7Qx"
+        doc: "https://docs.google.com"
+        quick:
+          - name: "财务数据上传器"
+            url: "https://financial-data-uploader.lodgegeek.com/"
+            target: "_blank"
+
+      - name: "住信SBIネット銀行"
+        logo: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/42/96/5d/42965d0a-0d5f-a89b-1530-dd86732be282/AppIcon-0-0-1x_U007ephone-0-1-0-85-220.png/400x400ia-75.webp"
+        subtitle: "Main Bank"
+        url: "https://www.netbk.co.jp/contents/hojin/"
+        doc: "https://docs.google.com"
+        quick:
+          - name: "Business Member入口"
+            url: "https://business-member.netbk.co.jp/login"
+            target: "_blank"
+
+      - name: "楽天銀行"
+        logo: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/ef/87/d9/ef87d982-b1ca-e994-413e-343ec7999742/AppIcon-0-0-1x_U007ephone-0-7-0-0-85-220.png/400x400ia-75.webp"
+        subtitle: "2nd Bank"
+        url: "https://www.rakuten-bank.co.jp/business/"
+
+
+  - name: "其他工具等"
+    icon: "fas fa-screwdriver-wrench"
+    items:
+
+      - name: "日本民宿旅馆投资收支模拟器"
+        icon: "fas fa-hand-holding-dollar"
+        subtitle: "简易版"
+        url: "https://simulation.lodgegeek.com/"
+
+      - name: "URL Shortener for LodgeGeek Domain"
+        icon: "fas fa-thumbtack"
+        subtitle: "LodgeGeek网址缩短器"
+        url: "https://s.lodgegeek.com/admin"  
+
+#  - name: "Members"
+#    icon: "fa-solid fa-people-group"
+#    items:
+#      - name: "丁良俊(林俊介)"
+#        logo: "https://hostex.io/app/assets/status/favicon.png?v=2"
+#        #icon: "fa-solid fa-book"
+#        subtitle: "CEO"
+#        url: "https://hostex.io/app/login/hello?page_type=login"
+#        doc: "https://docs.google.com"
+#      - name: "张莹祺(QiQi)"
+#        logo: "https://hello.pricelabs.co/wp-content/uploads/2023/09/cropped-Pricelabs-Logo-element.png"
+#        #icon: "fa-solid fa-book"
+#        subtitle: "Dynamic pricing platform | 动态定价平台"
+#        url: "https://pricelabs.co/signin"
+#        doc: "https://docs.google.com"
 
 
 #      - name: "Get started"

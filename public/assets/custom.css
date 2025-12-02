@@ -7346,3 +7346,16 @@ body #app .card.green {
   background-color: #006600;
   color: #00ff00;
 }
+
+/* Mobile Navbar Fix */
+@media screen and (max-width: 1023px) {
+  .navbar-menu {
+    background-color: var(--card-background) !important;
+    box-shadow: 0 8px 16px rgba(10, 10, 10, 0.1);
+  }
+}
+
+/* Global Background Fix */
+html, body {
+  background-color: var(--background) !important;
+}
