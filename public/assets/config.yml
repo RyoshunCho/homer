@@ -11,6 +11,9 @@ header: true
 footer: '<p>有问题请联系 <a href="mailto:shunsuke.hayashi@lodgegeek.com">shunsuke.hayashi@lodgegeek.com</a> | Powered by <a href="https://lodgegeek.com">LodgeGeek.inc</a> with ❤️</p>' # set false if you want to hide it.
 
 # Optional theme customization
+# Optional custom stylesheet
+stylesheet: "assets/custom.css"
+
 defaults:
   # columns, list
   layout: columns
