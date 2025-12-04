@@ -669,8 +669,8 @@ function updateServiceMemo(yamlContent, serviceId, newMemo) {
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
 
-        // Check for id match - handle various quote styles
-        const idMatch = line.match(/^(\s*)id:\s*["']?([^"'\s]+)["']?\s*$/);
+        // Check for id match - handle '- id:' pattern (YAML list item)
+        const idMatch = line.match(/^(\s*)-\s*id:\s*["']?([^"'\s]+)["']?\s*$/);
         if (idMatch) {
             console.log(`[updateServiceMemo] Found id at line ${i}: "${idMatch[2]}"`);
             if (idMatch[2] === serviceId) {
