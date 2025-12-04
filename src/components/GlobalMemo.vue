@@ -209,11 +209,13 @@ export default {
     line-height: 1.6;
 
     a {
-      color: #ffe066;
+      color: #fff;
       text-decoration: underline;
+      font-weight: 500;
+      text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
       
       &:hover {
-        color: #fff;
+        color: #a5f3fc;
       }
     }
   }
