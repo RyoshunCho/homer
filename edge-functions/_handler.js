@@ -195,18 +195,23 @@ export default async function handleRequest(request, env = {}) {
 
     // 2.7 Handle Config API (GET/PUT)
     if (url.pathname === "/api/config") {
+        console.log(`[Debug] Matched /api/config`);
         return handleConfigApi(request, env);
     }
 
     // 2.8 Handle Service Memo API (PATCH)
     if (url.pathname === "/api/config/memo") {
+        console.log(`[Debug] Matched /api/config/memo`);
         return handleServiceMemoApi(request, env);
     }
 
     // 2.9 Handle Global Memo API (PATCH)
     if (url.pathname === "/api/config/global-memo") {
+        console.log(`[Debug] Matched /api/config/global-memo`);
         return handleGlobalMemoApi(request, env);
     }
+
+    console.log(`[Debug] No API match for: ${url.pathname}`);
 
     // 3. Check Authentication (Cookie)
     const isLoggedIn = checkLoginCookie(request);
