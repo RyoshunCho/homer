@@ -629,59 +629,74 @@ async function handleGlobalMemoApi(request, env) {
  * Update memo for a specific service by ID in YAML content
  */
 function updateServiceMemo(yamlContent, serviceId, newMemo) {
-    const lines = yamlContent.split('\n');
+    // Normalize line endings
+    const normalizedContent = yamlContent.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const lines = normalizedContent.split('\n');
     let foundService = false;
     let serviceIndent = -1;
     let memoLineIndex = -1;
     let insertAfterLine = -1;
 
+    console.log(`[updateServiceMemo] Searching for service ID: ${serviceId}`);
+
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
 
-        // Check for id match
-        const idMatch = line.match(/^(\s*)id:\s*["']?([\w-]+)["']?/);
-        if (idMatch && idMatch[2] === serviceId) {
-            foundService = true;
-            serviceIndent = idMatch[1].length;
-            insertAfterLine = i;
-            continue;
+        // Check for id match - handle various quote styles
+        const idMatch = line.match(/^(\s*)id:\s*["']?([^"'\s]+)["']?\s*$/);
+        if (idMatch) {
+            console.log(`[updateServiceMemo] Found id at line ${i}: "${idMatch[2]}"`);
+            if (idMatch[2] === serviceId) {
+                foundService = true;
+                serviceIndent = idMatch[1].length;
+                insertAfterLine = i;
+                console.log(`[updateServiceMemo] Matched! Indent: ${serviceIndent}`);
+                continue;
+            }
         }
 
         if (foundService) {
             // Check if we've moved to next service or section
-            const currentIndent = line.match(/^(\s*)/)[1].length;
+            const indentMatch = line.match(/^(\s*)/);
+            const currentIndent = indentMatch ? indentMatch[1].length : 0;
             const trimmed = line.trim();
 
-            if (trimmed && !trimmed.startsWith('#') && currentIndent <= serviceIndent && trimmed.startsWith('-')) {
-                // Moved to next item, stop searching
+            // If we hit a new list item at same or lower indent, stop
+            if (trimmed.startsWith('- ') && currentIndent <= serviceIndent) {
+                console.log(`[updateServiceMemo] Found next item at line ${i}, stopping`);
                 break;
             }
 
-            // Check for memo line
-            if (line.match(/^\s*memo:/)) {
+            // Check for memo line within this service
+            const memoMatch = line.match(/^(\s*)memo:/);
+            if (memoMatch && memoMatch[1].length > serviceIndent) {
                 memoLineIndex = i;
+                console.log(`[updateServiceMemo] Found existing memo at line ${i}`);
             }
 
-            // Track last property line for insertion
-            if (trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('-') && line.includes(':')) {
+            // Track last property line for insertion (must be indented more than service start)
+            if (trimmed && !trimmed.startsWith('#') && currentIndent > serviceIndent && line.includes(':')) {
                 insertAfterLine = i;
             }
         }
     }
 
     if (!foundService) {
+        console.log(`[updateServiceMemo] Service not found: ${serviceId}`);
         return null;
     }
 
     const indent = ' '.repeat(serviceIndent + 2);
-    const escapedMemo = newMemo.replace(/"/g, '\\"');
+    const escapedMemo = newMemo.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
     const newMemoLine = `${indent}memo: "${escapedMemo}"`;
+
+    console.log(`[updateServiceMemo] Adding memo at indent ${serviceIndent + 2}, line ${insertAfterLine + 1}`);
 
     if (memoLineIndex >= 0) {
         // Replace existing memo line
         lines[memoLineIndex] = newMemoLine;
     } else {
-        // Insert new memo line after id
+        // Insert new memo line after last property
         lines.splice(insertAfterLine + 1, 0, newMemoLine);
     }
 

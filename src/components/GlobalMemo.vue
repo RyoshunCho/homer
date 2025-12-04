@@ -1,5 +1,5 @@
 <template>
-  <div v-if="hasContent || isEditing" class="global-memo-container">
+  <div class="global-memo-container">
     <div class="global-memo-card">
       <div class="memo-header">
         <span class="memo-icon">📢</span>
@@ -10,7 +10,8 @@
       </div>
       
       <div v-if="!isEditing" class="memo-body">
-        <p class="memo-text">{{ content }}</p>
+        <p v-if="hasContent" class="memo-text">{{ content }}</p>
+        <p v-else class="memo-placeholder">お知らせはありません。編集ボタンで追加できます。</p>
       </div>
       
       <div v-else class="memo-edit">
@@ -193,6 +194,13 @@ export default {
     font-size: 0.95rem;
     line-height: 1.6;
     white-space: pre-wrap;
+  }
+
+  .memo-placeholder {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    font-style: italic;
   }
 }
 
