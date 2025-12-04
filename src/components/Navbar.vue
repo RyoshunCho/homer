@@ -45,6 +45,9 @@
             <a v-else href="/login" class="navbar-item">
               Login
             </a>
+            <a v-if="isAdmin" class="navbar-item" @click="$emit('open-config-editor')" title="Edit Config">
+              <i class="fas fa-cog"></i>
+            </a>
             <a class="navbar-item" @click="refreshConfig" title="Refresh Config">
               <i class="fas fa-sync-alt"></i>
             </a>
@@ -65,8 +68,12 @@ export default {
     },
     links: Array,
     user: Object,
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
-  emits: ["navbar-toggle"],
+  emits: ["navbar-toggle", "open-config-editor"],
   computed: {
     showMenu: function () {
       return this.open && this.isSmallScreen();

@@ -1,0 +1,74 @@
+# Config Editor Feature - Implementation Walkthrough
+
+## Summary
+
+config.yml をオンラインで編集できる機能を実装しました。管理者ユーザーのみがMonaco Editorでconfig.ymlを編集・保存できます。
+
+## Changes Made
+
+### Frontend
+
+| File | Change |
+|------|--------|
+| [ConfigEditor.vue](file:///c:/dev/homer/src/components/ConfigEditor.vue) | **NEW** - Monaco EditorベースのYAML編集コンポーネント |
+| [Navbar.vue](file:///c:/dev/homer/src/components/Navbar.vue) | 管理者用「Edit Config」ボタン追加 |
+| [App.vue](file:///c:/dev/homer/src/App.vue) | isAdmin状態管理、ConfigEditor統合 |
+| [package.json](file:///c:/dev/homer/package.json) | `monaco-editor`, `monaco-editor-vue3` 依存関係追加 |
+| [vite.config.js](file:///c:/dev/homer/vite.config.js) | Monaco Editorのコード分割とPWA除外設定 |
+
+### Backend (Edge Functions)
+
+| File | Change |
+|------|--------|
+| [r2-client.js](file:///c:/dev/homer/edge-functions/r2-client.js) | **NEW** - R2 S3互換API通信モジュール（バックアップ・ローテーション機能付き） |
+| [_handler.js](file:///c:/dev/homer/edge-functions/_handler.js) | `/api/admin/check`, `/api/config` APIエンドポイント追加 |
+
+---
+
+## Build Verification
+
+```
+✓ 1422 modules transformed
+✓ built in 39.61s
+✓ PWA precache: 198 entries (2485.64 KiB)
+```
+
+---
+
+## Deployment Instructions
+
+### 1. EdgeOne環境変数を設定
+
+| 変数名 | 値 |
+|--------|-----|
+| `ADMIN_EMAILS` | 管理者メール（カンマ区切り可） |
+| `R2_ACCESS_KEY_ID` | `8d620a37d3948a50a013ff9bbe858893` |
+| `R2_SECRET_ACCESS_KEY` | `f3e0e9fd2a09ca853ad66301c91c7bd7d8b479695465c8dbb3cc5f3aa0d47673` |
+| `R2_ACCOUNT_ID` | `8051337e46fa041f11d59bbff3ea3f8f` |
+| `R2_BUCKET_NAME` | `homer-config` |
+| `R2_ENDPOINT` | `https://8051337e46fa041f11d59bbff3ea3f8f.r2.cloudflarestorage.com` |
+| `R2_PUBLIC_URL` | `https://pub-40e4e971626a41c7848a9726fd3fad92.r2.dev` |
+
+### 2. デプロイ
+
+```bash
+git add -A
+git commit -m "feat: add config editor with Monaco Editor"
+git push origin main
+```
+
+### 3. 動作確認
+
+1. 管理者メールでログイン → ナビバーに歯車アイコン表示確認
+2. 歯車アイコンクリック → Monaco Editor モーダル表示確認
+3. 編集 → Save → R2 Dashboard でバックアップ確認
+
+---
+
+## UI Preview
+
+### Admin Navbar
+![Admin Navbar](C:/Users/Liangjun Ding/.gemini/antigravity/brain/7a530be1-4f76-434a-92be-520ac2ffa236/admin_navbar_mockup_1764843993444.png)
+
+### Config Editor Modal
+![Config Editor](C:/Users/Liangjun Ding/.gemini/antigravity/brain/7a530be1-4f76-434a-92be-520ac2ffa236/config_editor_modal_1764844018508.png)

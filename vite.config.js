@@ -23,6 +23,13 @@ export default defineConfig({
   base: "",
   build: {
     assetsDir: "resources",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'monaco-editor': ['monaco-editor'],
+        },
+      },
+    },
   },
   define: {
     __APP_VERSION__: JSON.stringify(version),
@@ -75,7 +82,8 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: null,
-        globIgnores: ["**/index.html"],
+        globIgnores: ["**/index.html", "**/monaco-editor*.js", "**/*.worker*.js"],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
       },
     }),
   ],

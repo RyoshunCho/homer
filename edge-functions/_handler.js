@@ -1,4 +1,9 @@
 // ======================== Configuration ========================
+// Environment variables are expected from EdgeOne Dashboard:
+// - R2_PUBLIC_URL: Public R2 URL for reading config
+// - R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT, R2_BUCKET_NAME: For R2 write operations
+// - ADMIN_EMAILS: Comma-separated list of admin email addresses
+
 const CONFIG = {
     // Auth Worker Base URL (Production)
     AUTH_WORKER_URL: "https://auth.lodgegeek.com",
@@ -6,12 +11,13 @@ const CONFIG = {
     COOKIE_NAME: "auth_token",
     // Allowed Email Domain
     ALLOWED_DOMAIN: "lodgegeek.com",
-    // External Config URL (R2)
-    EXTERNAL_CONFIG_URL: "https://pub-40e4e971626a41c7848a9726fd3fad92.r2.dev/config.yml"
 };
 
+// Import R2 client functions
+import { getConfig as r2GetConfig, saveConfig as r2SaveConfig, isAdminUser } from './r2-client.js';
+
 // ======================== Core Logic ========================
-export default async function handleRequest(request) {
+export default async function handleRequest(request, env = {}) {
     const url = new URL(request.url);
     console.log(`[Debug] Request: ${request.method} ${url.pathname}`);
 
@@ -31,6 +37,16 @@ export default async function handleRequest(request) {
         return handleVerifyProxy(request);
     }
 
+    // 2.6 Handle Admin Check API
+    if (url.pathname === "/api/admin/check") {
+        return handleAdminCheck(request, env);
+    }
+
+    // 2.7 Handle Config API (GET/PUT)
+    if (url.pathname === "/api/config") {
+        return handleConfigApi(request, env);
+    }
+
     // 3. Check Authentication (Cookie)
     const isLoggedIn = checkLoginCookie(request);
     console.log(`[Debug] Login status: ${isLoggedIn}`);
@@ -38,7 +54,7 @@ export default async function handleRequest(request) {
     if (isLoggedIn) {
         // 3.5 Intercept config.yml request
         if (url.pathname.endsWith("/assets/config.yml")) {
-            return handleConfigProxy(request);
+            return handleConfigProxy(request, env);
         }
 
         // 4. Authenticated: Proceed to origin
@@ -161,25 +177,25 @@ async function handleVerifyProxy(request) {
 }
 
 /**
- * Proxy config.yml from External URL
+ * Proxy config.yml from External URL (R2 Public URL)
  */
-async function handleConfigProxy(request) {
+async function handleConfigProxy(request, env) {
     try {
-        const response = await fetch(CONFIG.EXTERNAL_CONFIG_URL);
+        // Use R2_PUBLIC_URL from environment or fallback
+        const configUrl = env.R2_PUBLIC_URL
+            ? `${env.R2_PUBLIC_URL}/config.yml`
+            : "https://pub-40e4e971626a41c7848a9726fd3fad92.r2.dev/config.yml";
+
+        const response = await fetch(configUrl);
 
         if (!response.ok) {
             console.error(`[Error] Failed to fetch external config: ${response.status}`);
-            // Fallback to origin if external fails? Or return error?
-            // For now, let's return error to make it obvious
             return new Response("Failed to load configuration", { status: 502 });
         }
 
         const newHeaders = new Headers(response.headers);
-        // Ensure correct content type for YAML
         newHeaders.set("Content-Type", "text/yaml");
-        // Add auth status header just in case
         newHeaders.set("X-Auth-Status", "logged_in");
-        // Enable caching for 1 hour to reduce R2 requests
         newHeaders.set("Cache-Control", "public, max-age=3600");
 
         return new Response(response.body, {
@@ -191,4 +207,141 @@ async function handleConfigProxy(request) {
         console.error("[Error] Config proxy exception:", error);
         return new Response("Internal Server Error", { status: 500 });
     }
+}
+
+// ======================== Admin API Functions ========================
+
+/**
+ * Get user info from auth worker
+ */
+async function getUserInfo(request) {
+    try {
+        const response = await fetch(`${CONFIG.AUTH_WORKER_URL}/verify`, {
+            method: "GET",
+            headers: {
+                "Cookie": request.headers.get("Cookie") || "",
+                "Accept": "application/json"
+            },
+            redirect: "manual"
+        });
+
+        if (!response.ok || response.status >= 300) {
+            return null;
+        }
+
+        const data = await response.json();
+        if (data.valid && data.payload) {
+            return data.payload;
+        }
+        return null;
+    } catch (error) {
+        console.error("Failed to get user info:", error);
+        return null;
+    }
+}
+
+/**
+ * Handle Admin Check API - checks if current user is admin
+ */
+async function handleAdminCheck(request, env) {
+    try {
+        const user = await getUserInfo(request);
+
+        if (!user) {
+            return new Response(JSON.stringify({ isAdmin: false, error: "Not authenticated" }), {
+                status: 401,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        const userEmail = user.enterprise_email || user.email;
+        const isAdmin = isAdminUser(env, userEmail);
+
+        return new Response(JSON.stringify({
+            isAdmin,
+            email: userEmail
+        }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+        });
+    } catch (error) {
+        console.error("Admin check failed:", error);
+        return new Response(JSON.stringify({ isAdmin: false, error: error.message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+}
+
+/**
+ * Handle Config API - GET to read, PUT to save
+ */
+async function handleConfigApi(request, env) {
+    // Check authentication first
+    const user = await getUserInfo(request);
+    if (!user) {
+        return new Response(JSON.stringify({ error: "Not authenticated" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+
+    const userEmail = user.enterprise_email || user.email;
+
+    // For PUT, check admin permission
+    if (request.method === "PUT") {
+        if (!isAdminUser(env, userEmail)) {
+            return new Response(JSON.stringify({ error: "Admin access required" }), {
+                status: 403,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        try {
+            const body = await request.json();
+            const content = body.content;
+
+            if (!content) {
+                return new Response(JSON.stringify({ error: "Content is required" }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" }
+                });
+            }
+
+            await r2SaveConfig(env, content);
+
+            return new Response(JSON.stringify({ success: true }), {
+                status: 200,
+                headers: { "Content-Type": "application/json" }
+            });
+        } catch (error) {
+            console.error("Config save failed:", error);
+            return new Response(JSON.stringify({ error: error.message }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+    }
+
+    // GET - read config
+    if (request.method === "GET") {
+        try {
+            const content = await r2GetConfig(env);
+            return new Response(JSON.stringify({ content }), {
+                status: 200,
+                headers: { "Content-Type": "application/json" }
+            });
+        } catch (error) {
+            console.error("Config read failed:", error);
+            return new Response(JSON.stringify({ error: error.message }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+    }
+
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+        status: 405,
+        headers: { "Content-Type": "application/json" }
+    });
 }

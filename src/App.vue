@@ -34,7 +34,9 @@
         :open="showMenu"
         :links="config.links"
         :user="user"
+        :is-admin="isAdmin"
         @navbar-toggle="showMenu = !showMenu"
+        @open-config-editor="showConfigEditor = true"
       >
         <DarkMode
           :default-value="config.defaults.colorTheme"
@@ -103,6 +105,13 @@
         ></div>
       </div>
     </footer>
+
+    <ConfigEditor
+      :is-open="showConfigEditor"
+      :is-dark="isDark"
+      @close="showConfigEditor = false"
+      @saved="onConfigSaved"
+    />
   </div>
   <div v-else-if="!isAuthChecked" class="loading-overlay">
     <div class="loading-spinner"></div>
@@ -124,6 +133,7 @@ import DarkMode from "./components/DarkMode.vue";
 import DynamicTheme from "./components/DynamicTheme.vue";
 import ClockWidget from "./components/ClockWidget.vue";
 import WeatherWidget from "./components/WeatherWidget.vue";
+import ConfigEditor from "./components/ConfigEditor.vue";
 
 import defaultConfig from "./assets/defaults.yml?raw";
 
@@ -141,6 +151,7 @@ export default {
     DynamicTheme,
     ClockWidget,
     WeatherWidget,
+    ConfigEditor,
   },
   data: function () {
     return {
@@ -157,6 +168,8 @@ export default {
       user: null, // Add user property
       isAuthChecked: false,
       isAuthenticated: false,
+      isAdmin: false,
+      showConfigEditor: false,
     };
   },
   computed: {
@@ -167,6 +180,7 @@ export default {
   created: async function () {
     this.buildDashboard();
     this.checkAuth(); // Call checkAuth
+    this.checkAdminStatus();
     window.onhashchange = this.buildDashboard;
     this.loaded = true;
     console.info(`Homer v${__APP_VERSION__}`);
@@ -328,6 +342,30 @@ export default {
     redirectToLogin() {
       const loginUrl = "https://auth.lodgegeek.com/login";
       window.location.href = `${loginUrl}?redirect_to=${encodeURIComponent(window.location.href)}`;
+    },
+    async checkAdminStatus() {
+      try {
+        const res = await fetch("/api/admin/check", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          this.isAdmin = data.isAdmin === true;
+          console.log("Admin status:", this.isAdmin);
+        }
+      } catch (error) {
+        console.error("Admin check failed:", error);
+        this.isAdmin = false;
+      }
+    },
+    onConfigSaved() {
+      // Refresh the page to apply the new config
+      console.log("Config saved, refreshing...");
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     },
   },
 };
