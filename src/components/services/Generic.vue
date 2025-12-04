@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="card" :style="`background-color:${item.background};`">
+    <div class="card" :class="{ 'is-disabled': item.disabled }" :style="`background-color:${item.background};`">
       <div v-if="hasAnyExtra" class="doc-link" @click.stop>
         <span
           class="memo-icon"
@@ -286,6 +286,25 @@ a[href=""] {
     background-color: var(--background);
     z-index: 9999;
     pointer-events: all;
+  }
+}
+
+.card.is-disabled {
+  opacity: 0.5;
+  filter: grayscale(50%);
+  
+  &::after {
+    content: "準備中";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
   }
 }
 </style>
