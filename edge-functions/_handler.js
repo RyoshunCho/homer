@@ -178,6 +178,21 @@ export default async function handleRequest(request, env = {}) {
         return fetch(request);
     }
 
+    // 1.5 Handle CORS preflight for API endpoints
+    if (request.method === "OPTIONS" && url.pathname.startsWith("/api/")) {
+        console.log(`[Debug] CORS preflight for: ${url.pathname}`);
+        return new Response(null, {
+            status: 204,
+            headers: {
+                "Access-Control-Allow-Origin": url.origin,
+                "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Max-Age": "86400",
+            }
+        });
+    }
+
     // 2. Handle Logout (Redirect to Auth Worker)
     if (url.pathname === "/logout" || url.pathname === "/logout/") {
         return handleLogout(url);
