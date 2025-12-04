@@ -14,7 +14,7 @@
           :href="item.doc"
           target="_blank"
           rel="noreferrer"
-        >📕</a>
+        >📝</a>
       </div>
       <a :href="item.url" :target="item.target || '_blank'" rel="noreferrer">
         <div class="card-content">

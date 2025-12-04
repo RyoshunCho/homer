@@ -140,7 +140,7 @@ services:
         name: "NextCloud"
         logo: "https://images.icon-icons.com/2407/PNG/512/nextcloud_icon_146137.png"
         subtitle: "公司标准大容量文件共享系统"
-        url: "https://nextcloud.lodgegeek.com/apps/oidc_login/oidc"
+        url: "https://nextcloud.lodgegeek.com/"
         doc: "https://docs.google.com"
 
       - id: "svc-007"
@@ -202,7 +202,6 @@ services:
         subtitle: "业务上请使用Chrome浏览器"
         url: "https://www.google.cn/chrome/index.html"
         #doc: "https://docs.google.com"    
-
 
   - name: "iPhone App"
     icon: "fab fa-apple"
@@ -340,31 +339,19 @@ services:
         logo: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/ef/87/d9/ef87d982-b1ca-e994-413e-343ec7999742/AppIcon-0-0-1x_U007ephone-0-7-0-0-85-220.png/400x400ia-75.webp"
         subtitle: "2nd Bank"
         url: "https://www.rakuten-bank.co.jp/business/"
-  
-      - id: "svc-028"
-        name: "GMO銀行"
-        logo: "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/2f/da/c9/2fdac960-0505-e62e-1028-12a1010ff9ff/AppIcon_corp-0-0-1x_U007epad-0-11-0-85-220.png/200x200ia-75.webp"
-        subtitle: "3rd Bank"
-        url: "https://sso.gmo-aozora.com/corp/b2c/login"
-  
-      - id: "svc-029"
-        name: "三井住友Trunk"
-        logo: "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/47/3c/8f/473c8fca-4656-3723-bc8c-b76c5f1233e2/AppIcon-0-0-1x_U007emarketing-0-11-0-85-220.png/200x200ia-75.webp"
-        subtitle: "4th Bank"
-        url: "https://biz.smbc.co.jp/web/id/login"
-  
 
-  - name: "自制工具等"
+
+  - name: "其他工具等"
     icon: "fas fa-screwdriver-wrench"
     items:
 
-      - id: "svc-030"
+      - id: "svc-028"
         name: "日本民宿旅馆投资收支模拟器"
         icon: "fas fa-hand-holding-dollar"
         subtitle: "简易版"
         url: "https://simulation.lodgegeek.com/"
 
-      - id: "svc-031"
+      - id: "svc-029"
         name: "URL Shortener for LodgeGeek Domain"
         icon: "fas fa-thumbtack"
         subtitle: "LodgeGeek网址缩短器"
