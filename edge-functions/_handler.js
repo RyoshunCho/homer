@@ -559,6 +559,15 @@ async function handleServiceMemoApi(request, env) {
             });
         }
 
+        // Length limit for security
+        const MAX_MEMO_LENGTH = 5000;
+        if (memo && memo.length > MAX_MEMO_LENGTH) {
+            return new Response(JSON.stringify({ error: `メモは${MAX_MEMO_LENGTH}文字以内にしてください` }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
         // console.log(`[handleServiceMemoApi] Looking for serviceId: ${serviceId}`);
 
         // Get current config
@@ -624,6 +633,15 @@ async function handleGlobalMemoApi(request, env) {
 
         if (content === undefined) {
             return new Response(JSON.stringify({ error: "content is required" }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        // Length limit for security
+        const MAX_CONTENT_LENGTH = 5000;
+        if (content && content.length > MAX_CONTENT_LENGTH) {
+            return new Response(JSON.stringify({ error: `内容は${MAX_CONTENT_LENGTH}文字以内にしてください` }), {
                 status: 400,
                 headers: { "Content-Type": "application/json" }
             });
