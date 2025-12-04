@@ -198,6 +198,16 @@ export default async function handleRequest(request, env = {}) {
         return handleConfigApi(request, env);
     }
 
+    // 2.8 Handle Service Memo API (PATCH)
+    if (url.pathname === "/api/config/memo") {
+        return handleServiceMemoApi(request, env);
+    }
+
+    // 2.9 Handle Global Memo API (PATCH)
+    if (url.pathname === "/api/config/global-memo") {
+        return handleGlobalMemoApi(request, env);
+    }
+
     // 3. Check Authentication (Cookie)
     const isLoggedIn = checkLoginCookie(request);
     console.log(`[Debug] Login status: ${isLoggedIn}`);
@@ -495,4 +505,242 @@ async function handleConfigApi(request, env) {
         status: 405,
         headers: { "Content-Type": "application/json" }
     });
+}
+
+/**
+ * Handle Service Memo API - PATCH to update a specific service's memo
+ * Requires login (any user can edit)
+ */
+async function handleServiceMemoApi(request, env) {
+    if (request.method !== "PATCH") {
+        return new Response(JSON.stringify({ error: "Method not allowed" }), {
+            status: 405,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+
+    // Check authentication
+    const user = await getUserInfo(request);
+    if (!user) {
+        return new Response(JSON.stringify({ error: "Not authenticated" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+
+    try {
+        const body = await request.json();
+        const { serviceId, memo } = body;
+
+        if (!serviceId) {
+            return new Response(JSON.stringify({ error: "serviceId is required" }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        // Get current config
+        const configContent = await r2GetConfig(env);
+
+        // Update memo for the service with matching id
+        const updatedContent = updateServiceMemo(configContent, serviceId, memo || "");
+
+        if (!updatedContent) {
+            return new Response(JSON.stringify({ error: "Service not found" }), {
+                status: 404,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        // Save updated config
+        await r2SaveConfig(env, updatedContent);
+
+        return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+        });
+    } catch (error) {
+        console.error("Service memo update failed:", error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+}
+
+/**
+ * Handle Global Memo API - PATCH to update globalMemo section
+ * Requires login (any user can edit)
+ */
+async function handleGlobalMemoApi(request, env) {
+    if (request.method !== "PATCH") {
+        return new Response(JSON.stringify({ error: "Method not allowed" }), {
+            status: 405,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+
+    // Check authentication
+    const user = await getUserInfo(request);
+    if (!user) {
+        return new Response(JSON.stringify({ error: "Not authenticated" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+
+    const userEmail = user.enterprise_email || user.email;
+
+    try {
+        const body = await request.json();
+        const { content } = body;
+
+        if (content === undefined) {
+            return new Response(JSON.stringify({ error: "content is required" }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        // Get current config
+        const configContent = await r2GetConfig(env);
+
+        // Update globalMemo section
+        const now = new Date().toISOString();
+        const updatedContent = updateGlobalMemo(configContent, content, now, userEmail);
+
+        // Save updated config
+        await r2SaveConfig(env, updatedContent);
+
+        return new Response(JSON.stringify({ success: true, updatedAt: now, updatedBy: userEmail }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+        });
+    } catch (error) {
+        console.error("Global memo update failed:", error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+}
+
+/**
+ * Update memo for a specific service by ID in YAML content
+ */
+function updateServiceMemo(yamlContent, serviceId, newMemo) {
+    const lines = yamlContent.split('\n');
+    let foundService = false;
+    let serviceIndent = -1;
+    let memoLineIndex = -1;
+    let insertAfterLine = -1;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // Check for id match
+        const idMatch = line.match(/^(\s*)id:\s*["']?([\w-]+)["']?/);
+        if (idMatch && idMatch[2] === serviceId) {
+            foundService = true;
+            serviceIndent = idMatch[1].length;
+            insertAfterLine = i;
+            continue;
+        }
+
+        if (foundService) {
+            // Check if we've moved to next service or section
+            const currentIndent = line.match(/^(\s*)/)[1].length;
+            const trimmed = line.trim();
+
+            if (trimmed && !trimmed.startsWith('#') && currentIndent <= serviceIndent && trimmed.startsWith('-')) {
+                // Moved to next item, stop searching
+                break;
+            }
+
+            // Check for memo line
+            if (line.match(/^\s*memo:/)) {
+                memoLineIndex = i;
+            }
+
+            // Track last property line for insertion
+            if (trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('-') && line.includes(':')) {
+                insertAfterLine = i;
+            }
+        }
+    }
+
+    if (!foundService) {
+        return null;
+    }
+
+    const indent = ' '.repeat(serviceIndent + 2);
+    const escapedMemo = newMemo.replace(/"/g, '\\"');
+    const newMemoLine = `${indent}memo: "${escapedMemo}"`;
+
+    if (memoLineIndex >= 0) {
+        // Replace existing memo line
+        lines[memoLineIndex] = newMemoLine;
+    } else {
+        // Insert new memo line after id
+        lines.splice(insertAfterLine + 1, 0, newMemoLine);
+    }
+
+    return lines.join('\n');
+}
+
+/**
+ * Update globalMemo section in YAML content
+ */
+function updateGlobalMemo(yamlContent, content, updatedAt, updatedBy) {
+    const lines = yamlContent.split('\n');
+    let inGlobalMemo = false;
+    let globalMemoStart = -1;
+    let globalMemoEnd = -1;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        if (line.match(/^globalMemo:/)) {
+            inGlobalMemo = true;
+            globalMemoStart = i;
+            continue;
+        }
+
+        if (inGlobalMemo) {
+            // Check if we've moved to next top-level section
+            if (line.match(/^[a-zA-Z]/) && !line.startsWith(' ')) {
+                globalMemoEnd = i;
+                break;
+            }
+        }
+    }
+
+    if (globalMemoStart === -1) {
+        // globalMemo section not found, add it
+        const insertIndex = lines.findIndex(l => l.match(/^links:/));
+        if (insertIndex > 0) {
+            const newSection = [
+                '',
+                '# Global Memo (告知カード)',
+                'globalMemo:',
+                `  content: "${content.replace(/"/g, '\\"')}"`,
+                `  updatedAt: "${updatedAt}"`,
+                `  updatedBy: "${updatedBy}"`,
+                ''
+            ];
+            lines.splice(insertIndex, 0, ...newSection);
+        }
+    } else {
+        // Replace globalMemo section
+        const endIndex = globalMemoEnd === -1 ? globalMemoStart + 4 : globalMemoEnd;
+        const newSection = [
+            'globalMemo:',
+            `  content: "${content.replace(/"/g, '\\"')}"`,
+            `  updatedAt: "${updatedAt}"`,
+            `  updatedBy: "${updatedBy}"`
+        ];
+        lines.splice(globalMemoStart, endIndex - globalMemoStart, ...newSection);
+    }
+
+    return lines.join('\n');
 }
