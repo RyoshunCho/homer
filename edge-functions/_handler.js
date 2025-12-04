@@ -559,13 +559,20 @@ async function handleServiceMemoApi(request, env) {
             });
         }
 
+        console.log(`[handleServiceMemoApi] Looking for serviceId: ${serviceId}`);
+
         // Get current config
         const configContent = await r2GetConfig(env);
+        console.log(`[handleServiceMemoApi] Config loaded, length: ${configContent?.length || 0}`);
+
+        // Log first 500 chars to see if id is present
+        console.log(`[handleServiceMemoApi] Config start: ${configContent?.substring(0, 500)}`);
 
         // Update memo for the service with matching id
         const updatedContent = updateServiceMemo(configContent, serviceId, memo || "");
 
         if (!updatedContent) {
+            console.log(`[handleServiceMemoApi] Service not found: ${serviceId}`);
             return new Response(JSON.stringify({ error: "Service not found" }), {
                 status: 404,
                 headers: { "Content-Type": "application/json" }
