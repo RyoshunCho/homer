@@ -170,7 +170,7 @@ async function r2SaveConfig(env, content) {
 // ======================== Core Logic ========================
 export default async function handleRequest(request, env = {}) {
     const url = new URL(request.url);
-    console.log(`[Debug] Request: ${request.method} ${url.pathname}`);
+    // console.log(`[Debug] Request: ${request.method} ${url.pathname}`);
 
     // 1. Ignore static resources
     const ignorePaths = ["/favicon.ico", "/robots.txt", "/assets/", "/resources/", "/icons/", "/manifest.json"];
@@ -180,7 +180,7 @@ export default async function handleRequest(request, env = {}) {
 
     // 1.5 Handle CORS preflight for API endpoints
     if (request.method === "OPTIONS" && url.pathname.startsWith("/api/")) {
-        console.log(`[Debug] CORS preflight for: ${url.pathname}`);
+        // console.log(`[Debug] CORS preflight for: ${url.pathname}`);
         return new Response(null, {
             status: 204,
             headers: {
@@ -210,23 +210,23 @@ export default async function handleRequest(request, env = {}) {
 
     // 2.7 Handle Config API (GET/PUT)
     if (url.pathname === "/api/config") {
-        console.log(`[Debug] Matched /api/config`);
+        // console.log(`[Debug] Matched /api/config`);
         return handleConfigApi(request, env);
     }
 
     // 2.8 Handle Service Memo API (PATCH)
     if (url.pathname === "/api/config/memo") {
-        console.log(`[Debug] Matched /api/config/memo`);
+        // console.log(`[Debug] Matched /api/config/memo`);
         return handleServiceMemoApi(request, env);
     }
 
     // 2.9 Handle Global Memo API (PATCH)
     if (url.pathname === "/api/config/global-memo") {
-        console.log(`[Debug] Matched /api/config/global-memo`);
+        // console.log(`[Debug] Matched /api/config/global-memo`);
         return handleGlobalMemoApi(request, env);
     }
 
-    console.log(`[Debug] No API match for: ${url.pathname}`);
+    // console.log(`[Debug] No API match for: ${url.pathname}`);
 
     // 3. Check Authentication (Cookie)
     const isLoggedIn = checkLoginCookie(request);
@@ -559,20 +559,20 @@ async function handleServiceMemoApi(request, env) {
             });
         }
 
-        console.log(`[handleServiceMemoApi] Looking for serviceId: ${serviceId}`);
+        // console.log(`[handleServiceMemoApi] Looking for serviceId: ${serviceId}`);
 
         // Get current config
         const configContent = await r2GetConfig(env);
-        console.log(`[handleServiceMemoApi] Config loaded, length: ${configContent?.length || 0}`);
+        // console.log(`[handleServiceMemoApi] Config loaded, length: ${configContent?.length || 0}`);
 
         // Log first 500 chars to see if id is present
-        console.log(`[handleServiceMemoApi] Config start: ${configContent?.substring(0, 500)}`);
+        // console.log(`[handleServiceMemoApi] Config start: ${configContent?.substring(0, 500)}`);
 
         // Update memo for the service with matching id
         const updatedContent = updateServiceMemo(configContent, serviceId, memo || "");
 
         if (!updatedContent) {
-            console.log(`[handleServiceMemoApi] Service not found: ${serviceId}`);
+            // console.log(`[handleServiceMemoApi] Service not found: ${serviceId}`);
             return new Response(JSON.stringify({ error: "Service not found" }), {
                 status: 404,
                 headers: { "Content-Type": "application/json" }
@@ -664,7 +664,7 @@ function updateServiceMemo(yamlContent, serviceId, newMemo) {
     let memoLineIndex = -1;
     let insertAfterLine = -1;
 
-    console.log(`[updateServiceMemo] Searching for service ID: ${serviceId}`);
+    // console.log(`[updateServiceMemo] Searching for service ID: ${serviceId}`);
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
@@ -672,12 +672,12 @@ function updateServiceMemo(yamlContent, serviceId, newMemo) {
         // Check for id match - handle '- id:' pattern (YAML list item)
         const idMatch = line.match(/^(\s*)-\s*id:\s*["']?([^"'\s]+)["']?\s*$/);
         if (idMatch) {
-            console.log(`[updateServiceMemo] Found id at line ${i}: "${idMatch[2]}"`);
+            // console.log(`[updateServiceMemo] Found id at line ${i}: "${idMatch[2]}"`);
             if (idMatch[2] === serviceId) {
                 foundService = true;
                 serviceIndent = idMatch[1].length;
                 insertAfterLine = i;
-                console.log(`[updateServiceMemo] Matched! Indent: ${serviceIndent}`);
+                // console.log(`[updateServiceMemo] Matched! Indent: ${serviceIndent}`);
                 continue;
             }
         }
@@ -690,7 +690,7 @@ function updateServiceMemo(yamlContent, serviceId, newMemo) {
 
             // If we hit a new list item at same or lower indent, stop
             if (trimmed.startsWith('- ') && currentIndent <= serviceIndent) {
-                console.log(`[updateServiceMemo] Found next item at line ${i}, stopping`);
+                // console.log(`[updateServiceMemo] Found next item at line ${i}, stopping`);
                 break;
             }
 
@@ -698,7 +698,7 @@ function updateServiceMemo(yamlContent, serviceId, newMemo) {
             const memoMatch = line.match(/^(\s*)memo:/);
             if (memoMatch && memoMatch[1].length > serviceIndent) {
                 memoLineIndex = i;
-                console.log(`[updateServiceMemo] Found existing memo at line ${i}`);
+                // console.log(`[updateServiceMemo] Found existing memo at line ${i}`);
             }
 
             // Track last property line for insertion (must be indented more than service start)
@@ -709,7 +709,7 @@ function updateServiceMemo(yamlContent, serviceId, newMemo) {
     }
 
     if (!foundService) {
-        console.log(`[updateServiceMemo] Service not found: ${serviceId}`);
+        // console.log(`[updateServiceMemo] Service not found: ${serviceId}`);
         return null;
     }
 
@@ -717,7 +717,7 @@ function updateServiceMemo(yamlContent, serviceId, newMemo) {
     const escapedMemo = newMemo.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
     const newMemoLine = `${indent}memo: "${escapedMemo}"`;
 
-    console.log(`[updateServiceMemo] Adding memo at indent ${serviceIndent + 2}, line ${insertAfterLine + 1}`);
+    // console.log(`[updateServiceMemo] Adding memo at indent ${serviceIndent + 2}, line ${insertAfterLine + 1}`);
 
     if (memoLineIndex >= 0) {
         // Replace existing memo line

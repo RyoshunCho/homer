@@ -2,7 +2,6 @@
   <div>
     <div class="card" :style="`background-color:${item.background};`">
       <div v-if="hasAnyExtra" class="doc-link" @click.stop>
-        👉
         <span
           class="memo-icon"
           :class="{ 'has-memo': item.memo }"
