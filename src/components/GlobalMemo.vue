@@ -3,14 +3,14 @@
     <div class="global-memo-card">
       <div class="memo-header">
         <span class="memo-icon">📢</span>
-        <span class="memo-title">お知らせ</span>
+        <span class="memo-title">お知らせ|公告</span>
         <button class="edit-btn" @click="toggleEdit" :title="isEditing ? 'キャンセル' : '編集'">
           <i :class="isEditing ? 'fas fa-times' : 'fas fa-edit'"></i>
         </button>
       </div>
       
       <div v-if="!isEditing" class="memo-body">
-        <p v-if="hasContent" class="memo-text">{{ content }}</p>
+        <p v-if="hasContent" class="memo-text" v-html="linkedContent"></p>
         <p v-else class="memo-placeholder">お知らせはありません。編集ボタンで追加できます。</p>
       </div>
       
@@ -20,6 +20,7 @@
           placeholder="お知らせを入力..."
           rows="3"
           ref="editTextarea"
+          @keydown.stop
         ></textarea>
         <div class="edit-actions">
           <span v-if="saving" class="saving-indicator">
@@ -86,6 +87,19 @@ export default {
       } catch {
         return this.updatedAt;
       }
+    },
+    linkedContent() {
+      if (!this.content) return "";
+      // Convert URLs to clickable links
+      const urlRegex = /(https?:\/\/[^\s<]+)/g;
+      const escaped = this.content
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/\n/g, "<br>");
+      return escaped.replace(urlRegex, '<a href="$1" target="_blank" rel="noreferrer">$1</a>');
     },
   },
   methods: {
@@ -193,7 +207,15 @@ export default {
     margin: 0;
     font-size: 0.95rem;
     line-height: 1.6;
-    white-space: pre-wrap;
+
+    a {
+      color: #ffe066;
+      text-decoration: underline;
+      
+      &:hover {
+        color: #fff;
+      }
+    }
   }
 
   .memo-placeholder {

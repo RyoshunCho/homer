@@ -99,6 +99,7 @@
               placeholder="メモを入力..."
               rows="5"
               ref="memoTextarea"
+              @keydown.stop
             ></textarea>
           </div>
           <div class="modal-footer">

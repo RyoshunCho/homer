@@ -145,7 +145,7 @@ async function listBackups(env, client) {
  * Cleanup old backups, keeping only the latest 10
  */
 async function cleanupOldBackups(env, client) {
-    const MAX_BACKUPS = 10;
+    const MAX_BACKUPS = 50;
 
     try {
         const backups = await listBackups(env, client);
