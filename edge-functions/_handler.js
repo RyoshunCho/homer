@@ -714,14 +714,41 @@ function updateServiceMemo(yamlContent, serviceId, newMemo) {
     }
 
     const indent = ' '.repeat(serviceIndent + 2);
-    const escapedMemo = newMemo.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    const newMemoLine = `${indent}memo: "${escapedMemo}"`;
+
+    // Format memo for YAML - use literal block style (|) for multiline
+    let newMemoLine;
+    if (!newMemo || newMemo.trim() === '') {
+        newMemoLine = `${indent}memo: ""`;
+    } else if (newMemo.includes('\n')) {
+        // Multiline: use literal block style
+        const memoIndent = ' '.repeat(serviceIndent + 4);
+        const indentedLines = newMemo.split('\n').map(line => memoIndent + line).join('\n');
+        newMemoLine = `${indent}memo: |\n${indentedLines}`;
+    } else {
+        // Single line: use quoted string
+        const escapedMemo = newMemo.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+        newMemoLine = `${indent}memo: "${escapedMemo}"`;
+    }
 
     // console.log(`[updateServiceMemo] Adding memo at indent ${serviceIndent + 2}, line ${insertAfterLine + 1}`);
 
     if (memoLineIndex >= 0) {
-        // Replace existing memo line
-        lines[memoLineIndex] = newMemoLine;
+        // Replace existing memo line (may need to remove multiline continuation)
+        let endOfMemo = memoLineIndex + 1;
+        // Check for multiline block continuation
+        const memoLineIndent = lines[memoLineIndex].match(/^(\s*)/)[1].length;
+        while (endOfMemo < lines.length) {
+            const nextLine = lines[endOfMemo];
+            const nextIndent = nextLine.match(/^(\s*)/)[1].length;
+            const trimmed = nextLine.trim();
+            // Continue if it's a continuation line (more indented or empty line within block)
+            if (trimmed === '' || nextIndent > memoLineIndent) {
+                endOfMemo++;
+            } else {
+                break;
+            }
+        }
+        lines.splice(memoLineIndex, endOfMemo - memoLineIndex, newMemoLine);
     } else {
         // Insert new memo line after last property
         lines.splice(insertAfterLine + 1, 0, newMemoLine);
@@ -757,6 +784,22 @@ function updateGlobalMemo(yamlContent, content, updatedAt, updatedBy) {
         }
     }
 
+    // Format content for YAML - use literal block style (|) for multiline
+    const formatContent = (text) => {
+        if (!text || text.trim() === '') {
+            return '  content: ""';
+        }
+        if (text.includes('\n')) {
+            // Multiline: use literal block style
+            const indentedLines = text.split('\n').map(line => '    ' + line).join('\n');
+            return '  content: |\n' + indentedLines;
+        } else {
+            // Single line: use quoted string
+            const escaped = text.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+            return `  content: "${escaped}"`;
+        }
+    };
+
     if (globalMemoStart === -1) {
         // globalMemo section not found, add it
         const insertIndex = lines.findIndex(l => l.match(/^links:/));
@@ -765,7 +808,7 @@ function updateGlobalMemo(yamlContent, content, updatedAt, updatedBy) {
                 '',
                 '# Global Memo (告知カード)',
                 'globalMemo:',
-                `  content: "${content.replace(/"/g, '\\"')}"`,
+                formatContent(content),
                 `  updatedAt: "${updatedAt}"`,
                 `  updatedBy: "${updatedBy}"`,
                 ''
@@ -777,7 +820,7 @@ function updateGlobalMemo(yamlContent, content, updatedAt, updatedBy) {
         const endIndex = globalMemoEnd === -1 ? globalMemoStart + 4 : globalMemoEnd;
         const newSection = [
             'globalMemo:',
-            `  content: "${content.replace(/"/g, '\\"')}"`,
+            formatContent(content),
             `  updatedAt: "${updatedAt}"`,
             `  updatedBy: "${updatedBy}"`
         ];
