@@ -1,20 +1,27 @@
 <template>
   <div>
     <div class="card" :style="`background-color:${item.background};`">
-      <div v-if="item.video || item.doc" class="doc-link" @click.stop>
+      <div v-if="hasAnyExtra" class="doc-link" @click.stop>
         👉
+        <span
+          class="memo-icon"
+          :class="{ 'has-memo': item.memo }"
+          @click="$emit('memo-click', item)"
+          @mouseenter="$emit('memo-hover', $event, item)"
+          @mouseleave="$emit('memo-leave')"
+        >📝</span>
+        <a
+          v-if="item.doc"
+          :href="item.doc"
+          target="_blank"
+          rel="noreferrer"
+        >📙</a>
         <a
           v-if="item.video"
           :href="item.video"
           target="_blank"
           rel="noreferrer"
         >📺</a>
-        <a
-          v-if="item.doc"
-          :href="item.doc"
-          target="_blank"
-          rel="noreferrer"
-        >📝</a>
       </div>
       <a :href="item.url" :target="item.target || '_blank'" rel="noreferrer">
         <div class="card-content">
@@ -74,9 +81,14 @@ export default {
   props: {
     item: Object,
   },
+  emits: ["memo-click", "memo-hover", "memo-leave"],
   computed: {
     mediaClass: function () {
       return { media: true, "no-subtitle": !this.item.subtitle };
+    },
+    hasAnyExtra: function () {
+      // Always show if item has id (for memo editing support)
+      return this.item.id || this.item.memo || this.item.doc || this.item.video;
     },
   },
 };
@@ -88,15 +100,24 @@ export default {
   top: 0.5rem;
   right: 0.5rem;
   z-index: 10;
-  font-size: 1.5rem; /* Bigger */
+  font-size: 1.5rem;
 
-  a {
+  a, .memo-icon {
     text-decoration: none;
     transition: transform 0.2s;
     display: inline-block;
+    cursor: pointer;
 
     &:hover {
       transform: scale(1.3);
+    }
+  }
+
+  .memo-icon {
+    opacity: 0.3;
+    
+    &.has-memo {
+      opacity: 1;
     }
   }
 }
