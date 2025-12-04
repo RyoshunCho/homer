@@ -1,17 +1,21 @@
 <template>
   <div>
     <div class="card" :style="`background-color:${item.background};`">
-      <a
-        v-if="item.doc"
-        class="doc-link"
-        :href="item.doc"
-        target="_blank"
-        rel="noreferrer"
-        @click.stop
-      >
-        <span style="margin-right: 4px">👉</span>
-        <i class="fas fa-book"></i>
-      </a>
+      <div v-if="item.video || item.doc" class="doc-link" @click.stop>
+        👉
+        <a
+          v-if="item.video"
+          :href="item.video"
+          target="_blank"
+          rel="noreferrer"
+        >📺</a>
+        <a
+          v-if="item.doc"
+          :href="item.doc"
+          target="_blank"
+          rel="noreferrer"
+        >📕</a>
+      </div>
       <a :href="item.url" :target="item.target || '_blank'" rel="noreferrer">
         <div class="card-content">
           <div :class="mediaClass">
@@ -84,12 +88,16 @@ export default {
   top: 0.5rem;
   right: 0.5rem;
   z-index: 10;
-  color: #ff9f43; /* Vibrant Orange */
   font-size: 1.5rem; /* Bigger */
-  transition: transform 0.2s;
 
-  &:hover {
-    transform: scale(1.2);
+  a {
+    text-decoration: none;
+    transition: transform 0.2s;
+    display: inline-block;
+
+    &:hover {
+      transform: scale(1.3);
+    }
   }
 }
 
