@@ -84,16 +84,29 @@
         <div class="memo-content">{{ item.memo }}</div>
       </div>
 
-      <!-- Memo Editor Modal -->
-      <div v-if="showEditor" class="memo-editor-overlay" @click.self="cancelEdit">
+      <!-- Memo Modal (View / Edit) -->
+      <div v-if="showMemoModal" class="memo-editor-overlay" @click.self="closeMemoModal">
         <div class="memo-editor-modal">
           <div class="modal-header">
-            <h3>📝 メモを編集</h3>
-            <button class="close-btn" @click="cancelEdit" title="Close">
+            <h3>📝 {{ item.name }} - Memo</h3>
+            <button class="close-btn" @click="closeMemoModal" title="Close">
               <i class="fas fa-times"></i>
             </button>
           </div>
-          <div class="modal-body">
+          
+          <!-- View Mode -->
+          <div v-if="!isEditing" class="modal-body view-mode">
+            <div v-if="item.memo" class="memo-content-view" v-html="linkedMemo"></div>
+            <div v-else class="memo-empty">メモはありません</div>
+            <div class="view-actions">
+              <button class="btn btn-primary" @click="startEdit">
+                <i class="fas fa-edit"></i> 編集
+              </button>
+            </div>
+          </div>
+          
+          <!-- Edit Mode -->
+          <div v-else class="modal-body">
             <textarea
               v-model="editContent"
               placeholder="メモを入力..."
@@ -102,7 +115,7 @@
               @keydown.stop
             ></textarea>
           </div>
-          <div class="modal-footer">
+          <div v-if="isEditing" class="modal-footer">
             <span v-if="saving" class="saving-indicator">
               <i class="fas fa-spinner fa-spin"></i> 保存中...
             </span>
@@ -133,7 +146,8 @@ export default {
   data() {
     return {
       showTooltip: false,
-      showEditor: false,
+      showMemoModal: false,
+      isEditing: false,
       tooltipX: 0,
       tooltipY: 0,
       editContent: "",
@@ -154,6 +168,18 @@ export default {
         left: `${this.tooltipX}px`,
         top: `${this.tooltipY}px`,
       };
+    },
+    linkedMemo: function () {
+      if (!this.item.memo) return "";
+      const urlRegex = /(https?:\/\/[^\s<]+)/g;
+      const escaped = this.item.memo
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/\n/g, "<br>");
+      return escaped.replace(urlRegex, '<a href="$1" target="_blank" rel="noreferrer">$1</a>');
     },
   },
   methods: {
@@ -177,16 +203,27 @@ export default {
     },
     openMemoEditor() {
       this.hideMemoTooltip();
-      this.editContent = this.item.memo || "";
-      this.showEditor = true;
+      this.showMemoModal = true;
+      this.isEditing = false;
       this.saveError = null;
+    },
+    startEdit() {
+      this.editContent = this.item.memo || "";
+      this.isEditing = true;
       this.$nextTick(() => {
         this.$refs.memoTextarea?.focus();
       });
     },
+    closeMemoModal() {
+      if (this.saving) return;
+      this.showMemoModal = false;
+      this.isEditing = false;
+      this.editContent = "";
+      this.saveError = null;
+    },
     cancelEdit() {
       if (this.saving) return;
-      this.showEditor = false;
+      this.isEditing = false;
       this.editContent = "";
       this.saveError = null;
     },
@@ -217,9 +254,9 @@ export default {
           throw new Error(data.error || `Failed: ${response.status}`);
         }
 
-        // Update local item and close
+        // Update local item and go back to view mode
         this.item.memo = this.editContent;
-        this.showEditor = false;
+        this.isEditing = false;
       } catch (err) {
         console.error("Memo save failed:", err);
         this.saveError = err.message || "保存に失敗しました";
@@ -402,6 +439,34 @@ a[href=""] {
         outline: none;
         border-color: var(--highlight-primary, #3367d6);
         box-shadow: 0 0 0 3px rgba(51, 103, 214, 0.1);
+      }
+    }
+
+    &.view-mode {
+      .memo-content-view {
+        white-space: pre-wrap;
+        word-break: break-word;
+        line-height: 1.6;
+        color: var(--text, #333333);
+        
+        a {
+          color: var(--link, #3273dc);
+          text-decoration: underline;
+          
+          &:hover {
+            color: var(--link-hover, #1a4a9e);
+          }
+        }
+      }
+
+      .memo-empty {
+        color: var(--text-subtitle, #666666);
+        font-style: italic;
+      }
+
+      .view-actions {
+        margin-top: 16px;
+        text-align: right;
       }
     }
   }
