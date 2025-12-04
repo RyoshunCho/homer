@@ -208,14 +208,14 @@ export default {
     font-size: 0.95rem;
     line-height: 1.6;
 
-    a {
-      color: #fff;
+    :deep(a) {
+      color: #fff !important;
       text-decoration: underline;
       font-weight: 500;
       text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
       
       &:hover {
-        color: #a5f3fc;
+        color: #a5f3fc !important;
       }
     }
   }
