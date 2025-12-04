@@ -13,8 +13,159 @@ const CONFIG = {
     ALLOWED_DOMAIN: "lodgegeek.com",
 };
 
-// Import R2 client functions
-import { getConfig as r2GetConfig, saveConfig as r2SaveConfig, isAdminUser } from './r2-client.js';
+// ======================== R2 Helper Functions (Inlined) ========================
+
+/**
+ * Check if a user is an admin based on their email
+ */
+function isAdminUser(env, userEmail) {
+    if (!env.ADMIN_EMAILS || !userEmail) {
+        return false;
+    }
+    const adminEmails = env.ADMIN_EMAILS.split(',').map(e => e.trim().toLowerCase());
+    return adminEmails.includes(userEmail.toLowerCase());
+}
+
+/**
+ * Get config.yml content from R2 (via public URL for reading)
+ */
+async function r2GetConfig(env) {
+    const url = `${env.R2_PUBLIC_URL}/config.yml`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch config: ${response.status}`);
+    }
+
+    return await response.text();
+}
+
+/**
+ * Create HMAC-SHA256 signature for AWS S3 compatible API
+ */
+async function hmacSha256(key, message) {
+    const encoder = new TextEncoder();
+    const keyData = typeof key === 'string' ? encoder.encode(key) : key;
+    const messageData = encoder.encode(message);
+
+    const cryptoKey = await crypto.subtle.importKey(
+        'raw',
+        keyData,
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+    );
+
+    const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+    return new Uint8Array(signature);
+}
+
+/**
+ * Create SHA256 hash
+ */
+async function sha256(message) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(message);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Convert Uint8Array to hex string
+ */
+function toHex(buffer) {
+    return Array.from(buffer).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Get AWS Signature V4 signing key
+ */
+async function getSigningKey(secretKey, dateStamp, region, service) {
+    const encoder = new TextEncoder();
+    const kDate = await hmacSha256(encoder.encode('AWS4' + secretKey), dateStamp);
+    const kRegion = await hmacSha256(kDate, region);
+    const kService = await hmacSha256(kRegion, service);
+    const kSigning = await hmacSha256(kService, 'aws4_request');
+    return kSigning;
+}
+
+/**
+ * Make a signed request to R2
+ */
+async function r2SignedRequest(env, method, key, body = null) {
+    const endpoint = new URL(env.R2_ENDPOINT);
+    const host = endpoint.host;
+    const url = `${env.R2_ENDPOINT}/${env.R2_BUCKET_NAME}/${key}`;
+
+    const now = new Date();
+    const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
+    const dateStamp = amzDate.substring(0, 8);
+
+    const region = 'auto';
+    const service = 's3';
+
+    const payloadHash = body ? await sha256(body) : await sha256('');
+
+    const canonicalUri = `/${env.R2_BUCKET_NAME}/${key}`;
+    const canonicalQueryString = '';
+    const canonicalHeaders = `host:${host}\nx-amz-content-sha256:${payloadHash}\nx-amz-date:${amzDate}\n`;
+    const signedHeaders = 'host;x-amz-content-sha256;x-amz-date';
+
+    const canonicalRequest = `${method}\n${canonicalUri}\n${canonicalQueryString}\n${canonicalHeaders}\n${signedHeaders}\n${payloadHash}`;
+
+    const algorithm = 'AWS4-HMAC-SHA256';
+    const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
+    const stringToSign = `${algorithm}\n${amzDate}\n${credentialScope}\n${await sha256(canonicalRequest)}`;
+
+    const signingKey = await getSigningKey(env.R2_SECRET_ACCESS_KEY, dateStamp, region, service);
+    const signature = toHex(await hmacSha256(signingKey, stringToSign));
+
+    const authorizationHeader = `${algorithm} Credential=${env.R2_ACCESS_KEY_ID}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
+
+    const headers = {
+        'Host': host,
+        'x-amz-date': amzDate,
+        'x-amz-content-sha256': payloadHash,
+        'Authorization': authorizationHeader,
+    };
+
+    if (body) {
+        headers['Content-Type'] = 'text/yaml';
+    }
+
+    return fetch(url, {
+        method,
+        headers,
+        body: body || undefined,
+    });
+}
+
+/**
+ * Save config.yml to R2 with automatic backup
+ */
+async function r2SaveConfig(env, content) {
+    // 1. Create backup first
+    try {
+        const currentConfig = await r2GetConfig(env);
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const backupKey = `config.backup.${timestamp}.yml`;
+        await r2SignedRequest(env, 'PUT', backupKey, currentConfig);
+        console.log(`Backup created: ${backupKey}`);
+    } catch (error) {
+        console.error('Backup creation failed:', error);
+        // Continue even if backup fails
+    }
+
+    // 2. Save new config
+    const response = await r2SignedRequest(env, 'PUT', 'config.yml', content);
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to save config: ${response.status} - ${errorText}`);
+    }
+
+    return { success: true };
+}
 
 // ======================== Core Logic ========================
 export default async function handleRequest(request, env = {}) {
