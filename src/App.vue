@@ -71,6 +71,12 @@
         <GetStarted v-if="configurationNeeded" />
 
         <div v-if="!offline">
+          <!-- Global Memo (Announcement Card) -->
+          <GlobalMemo
+            :global-memo="config.globalMemo"
+            @saved="onGlobalMemoSaved"
+          />
+
           <!-- Optional messages -->
           <Message :item="config.message" />
 
@@ -134,6 +140,7 @@ import DynamicTheme from "./components/DynamicTheme.vue";
 import ClockWidget from "./components/ClockWidget.vue";
 import WeatherWidget from "./components/WeatherWidget.vue";
 import ConfigEditor from "./components/ConfigEditor.vue";
+import GlobalMemo from "./components/GlobalMemo.vue";
 
 import defaultConfig from "./assets/defaults.yml?raw";
 
@@ -152,6 +159,7 @@ export default {
     ClockWidget,
     WeatherWidget,
     ConfigEditor,
+    GlobalMemo,
   },
   data: function () {
     return {
@@ -366,6 +374,16 @@ export default {
       setTimeout(() => {
         window.location.reload();
       }, 1500);
+    },
+    onGlobalMemoSaved(updatedMemo) {
+      // Update local globalMemo without page refresh
+      if (this.config) {
+        this.config.globalMemo = {
+          ...this.config.globalMemo,
+          ...updatedMemo,
+        };
+      }
+      console.log("Global memo updated:", updatedMemo);
     },
   },
 };
