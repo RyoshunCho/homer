@@ -98,10 +98,16 @@
           <div v-if="!isEditing" class="modal-body view-mode">
             <div v-if="item.memo" class="memo-content-view" v-html="linkedMemo"></div>
             <div v-else class="memo-empty">メモはありません</div>
-            <div class="view-actions">
-              <button class="btn btn-primary" @click="startEdit">
-                <i class="fas fa-edit"></i> 編集
-              </button>
+            <div class="view-footer">
+              <div v-if="item.memoUpdatedBy || item.memoUpdatedAt" class="memo-metadata">
+                <span v-if="item.memoUpdatedBy" class="memo-author">{{ item.memoUpdatedBy }}</span>
+                <span v-if="item.memoUpdatedAt" class="memo-date">{{ formattedMemoDate }}</span>
+              </div>
+              <div class="view-actions">
+                <button class="btn btn-primary" @click="startEdit">
+                  <i class="fas fa-edit"></i> 編集
+                </button>
+              </div>
             </div>
           </div>
           
@@ -181,6 +187,21 @@ export default {
         .replace(/\n/g, "<br>");
       return escaped.replace(urlRegex, '<a href="$1" target="_blank" rel="noreferrer">$1</a>');
     },
+    formattedMemoDate: function () {
+      if (!this.item.memoUpdatedAt) return "";
+      try {
+        const date = new Date(this.item.memoUpdatedAt);
+        return date.toLocaleDateString("ja-JP", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } catch (e) {
+        return this.item.memoUpdatedAt;
+      }
+    },
   },
   methods: {
     showMemoTooltip(event) {
@@ -254,8 +275,16 @@ export default {
           throw new Error(data.error || `Failed: ${response.status}`);
         }
 
-        // Update local item and go back to view mode
+        const result = await response.json();
+
+        // Update local item with new values
         this.item.memo = this.editContent;
+        if (result.memoUpdatedBy) {
+          this.item.memoUpdatedBy = result.memoUpdatedBy;
+        }
+        if (result.memoUpdatedAt) {
+          this.item.memoUpdatedAt = result.memoUpdatedAt;
+        }
         this.isEditing = false;
       } catch (err) {
         console.error("Memo save failed:", err);
@@ -464,9 +493,33 @@ a[href=""] {
         font-style: italic;
       }
 
-      .view-actions {
+      .view-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
         margin-top: 16px;
+        gap: 12px;
+      }
+
+      .memo-metadata {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 0.75rem;
+        color: var(--text-subtitle, #888888);
+
+        .memo-author {
+          opacity: 0.9;
+        }
+
+        .memo-date {
+          opacity: 0.7;
+        }
+      }
+
+      .view-actions {
         text-align: right;
+        flex-shrink: 0;
       }
     }
   }

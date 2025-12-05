@@ -548,6 +548,8 @@ async function handleServiceMemoApi(request, env) {
         });
     }
 
+    const userEmail = user.enterprise_email || user.email;
+
     try {
         const body = await request.json();
         const { serviceName, memo } = body;
@@ -577,8 +579,9 @@ async function handleServiceMemoApi(request, env) {
         // Log first 500 chars to see if name is present
         // console.log(`[handleServiceMemoApi] Config start: ${configContent?.substring(0, 500)}`);
 
-        // Update memo for the service with matching name
-        const updatedContent = updateServiceMemo(configContent, serviceName, memo || "");
+        // Update memo for the service with matching name (with author and timestamp)
+        const now = new Date().toISOString();
+        const updatedContent = updateServiceMemo(configContent, serviceName, memo || "", userEmail, now);
 
         if (!updatedContent) {
             // console.log(`[handleServiceMemoApi] Service not found: ${serviceName}`);
@@ -591,7 +594,11 @@ async function handleServiceMemoApi(request, env) {
         // Save updated config
         await r2SaveConfig(env, updatedContent);
 
-        return new Response(JSON.stringify({ success: true }), {
+        return new Response(JSON.stringify({
+            success: true,
+            memoUpdatedBy: userEmail,
+            memoUpdatedAt: now
+        }), {
             status: 200,
             headers: { "Content-Type": "application/json" }
         });
@@ -672,16 +679,20 @@ async function handleGlobalMemoApi(request, env) {
 
 /**
  * Update memo for a specific service by name in YAML content
+ * Also updates memoUpdatedBy and memoUpdatedAt fields
  */
-function updateServiceMemo(yamlContent, serviceName, newMemo) {
+function updateServiceMemo(yamlContent, serviceName, newMemo, updatedBy, updatedAt) {
     // Normalize line endings
     const normalizedContent = yamlContent.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     const lines = normalizedContent.split('\n');
     let foundService = false;
     let serviceIndent = -1;
     let memoLineIndex = -1;
+    let memoUpdatedByLineIndex = -1;
+    let memoUpdatedAtLineIndex = -1;
     let insertAfterLine = -1;
     let currentItemIndent = -1;
+    let serviceEndLine = -1;
 
     // console.log(`[updateServiceMemo] Searching for service name: ${serviceName}`);
 
@@ -716,6 +727,7 @@ function updateServiceMemo(yamlContent, serviceName, newMemo) {
 
             // If we hit a new list item at same or lower indent, stop
             if (trimmed.startsWith('- ') && currentIndent <= serviceIndent) {
+                serviceEndLine = i;
                 // console.log(`[updateServiceMemo] Found next item at line ${i}, stopping`);
                 break;
             }
@@ -725,6 +737,18 @@ function updateServiceMemo(yamlContent, serviceName, newMemo) {
             if (memoMatch && memoMatch[1].length > serviceIndent) {
                 memoLineIndex = i;
                 // console.log(`[updateServiceMemo] Found existing memo at line ${i}`);
+            }
+
+            // Check for memoUpdatedBy line
+            const updatedByMatch = line.match(/^(\s*)memoUpdatedBy:/);
+            if (updatedByMatch && updatedByMatch[1].length > serviceIndent) {
+                memoUpdatedByLineIndex = i;
+            }
+
+            // Check for memoUpdatedAt line
+            const updatedAtMatch = line.match(/^(\s*)memoUpdatedAt:/);
+            if (updatedAtMatch && updatedAtMatch[1].length > serviceIndent) {
+                memoUpdatedAtLineIndex = i;
             }
 
             // Track last property line for insertion (must be indented more than service start)
@@ -756,28 +780,94 @@ function updateServiceMemo(yamlContent, serviceName, newMemo) {
         newMemoLine = `${indent}memo: "${escapedMemo}"`;
     }
 
-    // console.log(`[updateServiceMemo] Adding memo at indent ${serviceIndent + 2}, line ${insertAfterLine + 1}`);
+    // Format memoUpdatedBy and memoUpdatedAt lines
+    const newUpdatedByLine = `${indent}memoUpdatedBy: "${updatedBy}"`;
+    const newUpdatedAtLine = `${indent}memoUpdatedAt: "${updatedAt}"`;
 
+    // We need to handle replacements carefully to avoid index shifting issues
+    // Collect all changes and apply them in reverse order (from bottom to top)
+    const changes = [];
+
+    // Handle memoUpdatedAt
+    if (memoUpdatedAtLineIndex >= 0) {
+        changes.push({ index: memoUpdatedAtLineIndex, deleteCount: 1, insert: newUpdatedAtLine });
+    }
+
+    // Handle memoUpdatedBy
+    if (memoUpdatedByLineIndex >= 0) {
+        changes.push({ index: memoUpdatedByLineIndex, deleteCount: 1, insert: newUpdatedByLine });
+    }
+
+    // Handle memo (may span multiple lines if multiline block)
     if (memoLineIndex >= 0) {
-        // Replace existing memo line (may need to remove multiline continuation)
         let endOfMemo = memoLineIndex + 1;
-        // Check for multiline block continuation
         const memoLineIndent = lines[memoLineIndex].match(/^(\s*)/)[1].length;
         while (endOfMemo < lines.length) {
             const nextLine = lines[endOfMemo];
             const nextIndent = nextLine.match(/^(\s*)/)[1].length;
             const trimmed = nextLine.trim();
-            // Continue if it's a continuation line (more indented or empty line within block)
             if (trimmed === '' || nextIndent > memoLineIndent) {
                 endOfMemo++;
             } else {
                 break;
             }
         }
-        lines.splice(memoLineIndex, endOfMemo - memoLineIndex, newMemoLine);
-    } else {
-        // Insert new memo line after last property
+        changes.push({ index: memoLineIndex, deleteCount: endOfMemo - memoLineIndex, insert: newMemoLine });
+    }
+
+    // Sort changes by index descending to apply from bottom to top
+    changes.sort((a, b) => b.index - a.index);
+
+    // Apply changes
+    for (const change of changes) {
+        lines.splice(change.index, change.deleteCount, change.insert);
+    }
+
+    // If any fields were missing, insert them after the memo (or after last property)
+    // Find the current memo position after changes
+    let currentMemoIndex = -1;
+    for (let i = 0; i < lines.length; i++) {
+        if (lines[i].match(/^(\s*)memo:/) && foundService) {
+            const indentMatch = lines[i].match(/^(\s*)/);
+            if (indentMatch && indentMatch[1].length === serviceIndent + 2) {
+                currentMemoIndex = i;
+                break;
+            }
+        }
+    }
+
+    // If memo was not found initially, insert it
+    if (memoLineIndex < 0) {
         lines.splice(insertAfterLine + 1, 0, newMemoLine);
+        currentMemoIndex = insertAfterLine + 1;
+    }
+
+    // Find where to insert missing fields (after memo block)
+    let insertPosition = currentMemoIndex + 1;
+    // Skip multiline memo content
+    const memoIndentLevel = serviceIndent + 2;
+    while (insertPosition < lines.length) {
+        const line = lines[insertPosition];
+        const lineIndent = line.match(/^(\s*)/)[1].length;
+        const trimmed = line.trim();
+        if (trimmed === '' || lineIndent > memoIndentLevel) {
+            insertPosition++;
+        } else {
+            break;
+        }
+    }
+
+    // Insert missing fields
+    const fieldsToInsert = [];
+    if (memoUpdatedByLineIndex < 0) {
+        fieldsToInsert.push(newUpdatedByLine);
+    }
+    if (memoUpdatedAtLineIndex < 0) {
+        fieldsToInsert.push(newUpdatedAtLine);
+    }
+
+    if (fieldsToInsert.length > 0) {
+        lines.splice(insertPosition, 0, ...fieldsToInsert);
     }
 
     return lines.join('\n');
