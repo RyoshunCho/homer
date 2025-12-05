@@ -48,37 +48,8 @@ body #app .card.green {
   }
 }
 
-/* =================================================================== */
-/* Global Background Fix - Mobile Safe                                */
-/* =================================================================== */
-
+/* Global Background Fix */
 html,
-body,
-#app,
-#app-mount,
-main,
-.container,
-.section {
+body {
   background-color: var(--background) !important;
-}
-
-/* Safe area padding for notched devices (iPhone X+) */
-body {
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-}
-
-/* Prevent black gaps in scroll on iOS */
-html {
-  min-height: 100%;
-  min-height: -webkit-fill-available;
-  overflow-y: scroll;
-  -webkit-overflow-scrolling: touch;
-}
-
-body {
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
 }
