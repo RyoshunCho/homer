@@ -550,10 +550,10 @@ async function handleServiceMemoApi(request, env) {
 
     try {
         const body = await request.json();
-        const { serviceId, memo } = body;
+        const { serviceName, memo } = body;
 
-        if (!serviceId) {
-            return new Response(JSON.stringify({ error: "serviceId is required" }), {
+        if (!serviceName) {
+            return new Response(JSON.stringify({ error: "serviceName is required" }), {
                 status: 400,
                 headers: { "Content-Type": "application/json" }
             });
@@ -568,20 +568,20 @@ async function handleServiceMemoApi(request, env) {
             });
         }
 
-        // console.log(`[handleServiceMemoApi] Looking for serviceId: ${serviceId}`);
+        // console.log(`[handleServiceMemoApi] Looking for serviceName: ${serviceName}`);
 
         // Get current config
         const configContent = await r2GetConfig(env);
         // console.log(`[handleServiceMemoApi] Config loaded, length: ${configContent?.length || 0}`);
 
-        // Log first 500 chars to see if id is present
+        // Log first 500 chars to see if name is present
         // console.log(`[handleServiceMemoApi] Config start: ${configContent?.substring(0, 500)}`);
 
-        // Update memo for the service with matching id
-        const updatedContent = updateServiceMemo(configContent, serviceId, memo || "");
+        // Update memo for the service with matching name
+        const updatedContent = updateServiceMemo(configContent, serviceName, memo || "");
 
         if (!updatedContent) {
-            // console.log(`[handleServiceMemoApi] Service not found: ${serviceId}`);
+            // console.log(`[handleServiceMemoApi] Service not found: ${serviceName}`);
             return new Response(JSON.stringify({ error: "Service not found" }), {
                 status: 404,
                 headers: { "Content-Type": "application/json" }
@@ -671,9 +671,9 @@ async function handleGlobalMemoApi(request, env) {
 }
 
 /**
- * Update memo for a specific service by ID in YAML content
+ * Update memo for a specific service by name in YAML content
  */
-function updateServiceMemo(yamlContent, serviceId, newMemo) {
+function updateServiceMemo(yamlContent, serviceName, newMemo) {
     // Normalize line endings
     const normalizedContent = yamlContent.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     const lines = normalizedContent.split('\n');
@@ -681,19 +681,27 @@ function updateServiceMemo(yamlContent, serviceId, newMemo) {
     let serviceIndent = -1;
     let memoLineIndex = -1;
     let insertAfterLine = -1;
+    let currentItemIndent = -1;
 
-    // console.log(`[updateServiceMemo] Searching for service ID: ${serviceId}`);
+    // console.log(`[updateServiceMemo] Searching for service name: ${serviceName}`);
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
 
-        // Check for id match - handle '- id:' pattern (YAML list item)
-        const idMatch = line.match(/^(\s*)-\s*id:\s*["']?([^"'\s]+)["']?\s*$/);
-        if (idMatch) {
-            // console.log(`[updateServiceMemo] Found id at line ${i}: "${idMatch[2]}"`);
-            if (idMatch[2] === serviceId) {
+        // Check for YAML list item start (- name: or just -)
+        const listItemMatch = line.match(/^(\s*)-\s*/);
+        if (listItemMatch) {
+            currentItemIndent = listItemMatch[1].length;
+        }
+
+        // Check for name match - handle 'name:' pattern within a list item
+        const nameMatch = line.match(/^(\s*)name:\s*["']?(.+?)["']?\s*$/);
+        if (nameMatch && currentItemIndent >= 0) {
+            const nameValue = nameMatch[2].trim();
+            // console.log(`[updateServiceMemo] Found name at line ${i}: "${nameValue}"`);
+            if (nameValue === serviceName) {
                 foundService = true;
-                serviceIndent = idMatch[1].length;
+                serviceIndent = currentItemIndent;
                 insertAfterLine = i;
                 // console.log(`[updateServiceMemo] Matched! Indent: ${serviceIndent}`);
                 continue;
@@ -727,7 +735,7 @@ function updateServiceMemo(yamlContent, serviceId, newMemo) {
     }
 
     if (!foundService) {
-        // console.log(`[updateServiceMemo] Service not found: ${serviceId}`);
+        // console.log(`[updateServiceMemo] Service not found: ${serviceName}`);
         return null;
     }
 

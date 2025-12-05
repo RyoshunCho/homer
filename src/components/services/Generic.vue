@@ -161,7 +161,7 @@ export default {
       return { media: true, "no-subtitle": !this.item.subtitle };
     },
     hasAnyExtra: function () {
-      return this.item.id || this.item.memo || this.item.doc || this.item.video;
+      return this.item.name || this.item.memo || this.item.doc || this.item.video;
     },
     tooltipStyle: function () {
       return {
@@ -228,8 +228,8 @@ export default {
       this.saveError = null;
     },
     async saveMemo() {
-      if (!this.item.id) {
-        this.saveError = "サービスIDがありません";
+      if (!this.item.name) {
+        this.saveError = "サービス名がありません";
         return;
       }
 
@@ -244,7 +244,7 @@ export default {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            serviceId: this.item.id,
+            serviceName: this.item.name,
             memo: this.editContent,
           }),
         });
