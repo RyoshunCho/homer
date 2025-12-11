@@ -688,8 +688,8 @@ function updateServiceMemo(yamlContent, serviceName, newMemo, updatedBy, updated
     let foundService = false;
     let serviceIndent = -1;
     let memoLineIndex = -1;
-    let memoUpdatedByLineIndex = -1;
-    let memoUpdatedAtLineIndex = -1;
+    let memoUpdatedByLineIndices = []; // Changed to array to track all duplicates
+    let memoUpdatedAtLineIndices = []; // Changed to array to track all duplicates
     let insertAfterLine = -1;
     let currentItemIndent = -1;
     let serviceEndLine = -1;
@@ -739,16 +739,16 @@ function updateServiceMemo(yamlContent, serviceName, newMemo, updatedBy, updated
                 // console.log(`[updateServiceMemo] Found existing memo at line ${i}`);
             }
 
-            // Check for memoUpdatedBy line
+            // Check for memoUpdatedBy line - track all duplicates
             const updatedByMatch = line.match(/^(\s*)memoUpdatedBy:/);
             if (updatedByMatch && updatedByMatch[1].length > serviceIndent) {
-                memoUpdatedByLineIndex = i;
+                memoUpdatedByLineIndices.push(i);
             }
 
-            // Check for memoUpdatedAt line
+            // Check for memoUpdatedAt line - track all duplicates
             const updatedAtMatch = line.match(/^(\s*)memoUpdatedAt:/);
             if (updatedAtMatch && updatedAtMatch[1].length > serviceIndent) {
-                memoUpdatedAtLineIndex = i;
+                memoUpdatedAtLineIndices.push(i);
             }
 
             // Track last property line for insertion (must be indented more than service start)
@@ -788,14 +788,14 @@ function updateServiceMemo(yamlContent, serviceName, newMemo, updatedBy, updated
     // Collect all changes and apply them in reverse order (from bottom to top)
     const changes = [];
 
-    // Handle memoUpdatedAt
-    if (memoUpdatedAtLineIndex >= 0) {
-        changes.push({ index: memoUpdatedAtLineIndex, deleteCount: 1, insert: newUpdatedAtLine });
+    // Handle memoUpdatedAt - delete ALL occurrences
+    for (let i = 0; i < memoUpdatedAtLineIndices.length; i++) {
+        changes.push({ index: memoUpdatedAtLineIndices[i], deleteCount: 1, insert: null });
     }
 
-    // Handle memoUpdatedBy
-    if (memoUpdatedByLineIndex >= 0) {
-        changes.push({ index: memoUpdatedByLineIndex, deleteCount: 1, insert: newUpdatedByLine });
+    // Handle memoUpdatedBy - delete ALL occurrences
+    for (let i = 0; i < memoUpdatedByLineIndices.length; i++) {
+        changes.push({ index: memoUpdatedByLineIndices[i], deleteCount: 1, insert: null });
     }
 
     // Handle memo (may span multiple lines if multiline block)
@@ -820,7 +820,13 @@ function updateServiceMemo(yamlContent, serviceName, newMemo, updatedBy, updated
 
     // Apply changes
     for (const change of changes) {
-        lines.splice(change.index, change.deleteCount, change.insert);
+        if (change.insert === null) {
+            // Delete only
+            lines.splice(change.index, change.deleteCount);
+        } else {
+            // Replace
+            lines.splice(change.index, change.deleteCount, change.insert);
+        }
     }
 
     // If any fields were missing, insert them after the memo (or after last property)
@@ -857,14 +863,8 @@ function updateServiceMemo(yamlContent, serviceName, newMemo, updatedBy, updated
         }
     }
 
-    // Insert missing fields
-    const fieldsToInsert = [];
-    if (memoUpdatedByLineIndex < 0) {
-        fieldsToInsert.push(newUpdatedByLine);
-    }
-    if (memoUpdatedAtLineIndex < 0) {
-        fieldsToInsert.push(newUpdatedAtLine);
-    }
+    // Insert missing fields (always insert since we deleted all existing ones)
+    const fieldsToInsert = [newUpdatedByLine, newUpdatedAtLine];
 
     if (fieldsToInsert.length > 0) {
         lines.splice(insertPosition, 0, ...fieldsToInsert);
