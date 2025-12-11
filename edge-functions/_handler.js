@@ -694,9 +694,25 @@ function updateServiceMemo(yamlContent, serviceName, newMemo, updatedBy, updated
     }
 
     // Find the service item with matching name
-    const targetItem = services.items.find(item => {
-        return item.has('name') && item.get('name') === serviceName;
-    });
+    // services structure: [ { name: "Group", items: [ { name: "Service" }, ... ] }, ... ]
+    let targetItem = null;
+
+    for (const group of services.items) {
+        // Ensure group is a Map and has items
+        if (!group.get || !group.has('items')) continue;
+
+        const groupItems = group.get('items');
+        if (!groupItems || !groupItems.items) continue;
+
+        const found = groupItems.items.find(item => {
+            return item.has('name') && item.get('name') === serviceName;
+        });
+
+        if (found) {
+            targetItem = found;
+            break;
+        }
+    }
 
     if (!targetItem) {
         // console.log(`[updateServiceMemo] Service not found: ${serviceName}`);
