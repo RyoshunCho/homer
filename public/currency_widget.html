@@ -1,39 +1,228 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Currency Converter</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
-        .tradingview-widget-container { width: 100%; height: 100%; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: transparent;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .widget-container {
+            width: 90%;
+            height: 90%;
+            background: #ffffff;
+            /* border-radius: 12px; */
+            /* Parent iframe should handle border radius if possible, but internal card looks nice */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .converter-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            transition: border-color 0.2s;
+        }
+
+        .converter-row:focus-within {
+            border-color: #3367d6;
+            background: #fff;
+        }
+
+        .input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        input {
+            border: none;
+            background: transparent;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #202124;
+            width: 100%;
+            outline: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .currency-label {
+            font-size: 0.75rem;
+            color: #5f6368;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        .flag {
+            font-size: 1.5rem;
+            margin-left: 10px;
+            line-height: 1;
+        }
+
+        .swap-icon {
+            font-size: 1rem;
+            color: #5f6368;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -6px 0;
+            align-self: center;
+            z-index: 10;
+        }
+
+        .swap-icon:hover {
+            background: #f1f3f4;
+            color: #3367d6;
+        }
+
+        .rate-info {
+            font-size: 0.75rem;
+            color: #5f6368;
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        /* Dark mode support via query param or system pref */
+        @media (prefers-color-scheme: dark) {
+            .widget-container {
+                background: #2b2b2b;
+            }
+
+            .converter-row {
+                background: #3c4043;
+                border-color: #5f6368;
+            }
+
+            .converter-row:focus-within {
+                border-color: #8ab4f8;
+                background: #3c4043;
+            }
+
+            input {
+                color: #e8eaed;
+            }
+
+            .currency-label {
+                color: #9aa0a6;
+            }
+
+            .swap-icon {
+                color: #9aa0a6;
+            }
+
+            .swap-icon:hover {
+                background: #303134;
+                color: #8ab4f8;
+            }
+
+            .rate-info {
+                color: #9aa0a6;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <!-- TradingView Widget BEGIN -->
-    <div class="tradingview-widget-container">
-        <div class="tradingview-widget-container__widget"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-currency-converter.js" async>
-        {
-        "width": "100%",
-        "height": "100%",
-        "from": "CNY",
-        "to": "JPY",
-        "amount": 1,
-        "locale": "ja",
-        "style": "2",
-        "interval": "1d",
-        "timestamp": "24h",
-        "calibration": "now",
-        "theme": "light",
-        "backgroundColor": "rgba(255, 255, 255, 0)",
-        "gridLineColor": "rgba(240, 243, 250, 0)",
-        "fontColor": "#787B86",
-        "isTransparent": true,
-        "displayMode": "adaptive"
-        }
-        </script>
+    <div class="widget-container">
+        <!-- From CNY -->
+        <div class="converter-row">
+            <div class="input-group">
+                <input type="number" id="from-amount" value="1" min="0" step="any">
+                <div class="currency-label">CNY - 中国元</div>
+            </div>
+            <span class="flag">🇨🇳</span>
+        </div>
+
+        <!-- Swap / Arrow -->
+        <div class="swap-icon" title="Swap (Coming soon)">
+            ⬇️
+        </div>
+
+        <!-- To JPY -->
+        <div class="converter-row">
+            <div class="input-group">
+                <input type="number" id="to-amount" value="..." readonly>
+                <div class="currency-label">JPY - 日本円</div>
+            </div>
+            <span class="flag">🇯🇵</span>
+        </div>
+
+        <div class="rate-info" id="rate-display">Creating...</div>
     </div>
-    <!-- TradingView Widget END -->
+
+    <script>
+        const fromInput = document.getElementById('from-amount');
+        const toInput = document.getElementById('to-amount');
+        const rateDisplay = document.getElementById('rate-display');
+        let exchangeRate = 0;
+
+        async function fetchRate() {
+            try {
+                // Using open.er-api.com which requires no key
+                const res = await fetch('https://open.er-api.com/v6/latest/CNY');
+                if (!res.ok) throw new Error('API Error');
+                const data = await res.json();
+                exchangeRate = data.rates.JPY;
+
+                updateCalculation();
+
+                // Format rate time
+                const date = new Date(data.time_last_update_utc);
+                const timeStr = date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+                rateDisplay.textContent = `1 CNY = ${exchangeRate.toFixed(4)} JPY (${timeStr})`;
+            } catch (e) {
+                console.error(e);
+                rateDisplay.textContent = 'レート取得エラー';
+            }
+        }
+
+        function updateCalculation() {
+            if (!exchangeRate) return;
+            const val = parseFloat(fromInput.value);
+            if (!isNaN(val)) {
+                // Format with minimal decimal places for Yen (usually 0 or 2)
+                toInput.value = (val * exchangeRate).toFixed(2);
+            } else {
+                toInput.value = '';
+            }
+        }
+
+        fromInput.addEventListener('input', updateCalculation);
+
+        // Initial fetch
+        fetchRate();
+
+        // Refresh every minute
+        setInterval(fetchRate, 60000);
+    </script>
 </body>
+
 </html>
