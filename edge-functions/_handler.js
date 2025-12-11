@@ -835,7 +835,7 @@ function updateServiceMemo(yamlContent, serviceName, newMemo, updatedBy, updated
     let foundServiceAgain = false;
     let newServiceIndent = -1;
     let newInsertAfterLine = -1;
-    let currentItemIndent = -1;
+    currentItemIndent = -1;
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
