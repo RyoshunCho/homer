@@ -21,7 +21,6 @@
         @media (prefers-color-scheme: dark) {
             :root {
                 --bg-color: #2d3748;
-                /* Matching dashboard dark card */
                 --text-color: #e8eaed;
                 --subtext-color: #9aa0a6;
                 --border-color: #5f6368;
@@ -39,9 +38,7 @@
             height: 100%;
             font-family: 'Inter', sans-serif;
             background-color: transparent;
-            /* Let container API handle bg */
             overflow: hidden;
-            /* No scrollbars */
         }
 
         .widget-wrapper {
@@ -88,7 +85,6 @@
             padding: 0;
         }
 
-        /* Remove spin buttons */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -98,7 +94,8 @@
         .currency-selector {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            /* Slightly more gap for image */
             margin-left: 10px;
             border-left: 1px solid var(--border-color);
             padding-left: 10px;
@@ -116,7 +113,6 @@
             outline: none;
             cursor: pointer;
             padding-right: 16px;
-            /* Space for arrow */
         }
 
         .select-arrow {
@@ -138,8 +134,14 @@
             }
         }
 
-        .flag-icon {
-            font-size: 1.2rem;
+        .flag-img {
+            width: 24px;
+            height: 18px;
+            /* 4:3 aspect mostly */
+            object-fit: cover;
+            border-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            display: block;
         }
 
         .swap-wrapper {
@@ -205,7 +207,7 @@
             <div class="currency-row">
                 <input type="number" id="from-amount" value="1" min="0" step="any" class="amount-input">
                 <div class="currency-selector">
-                    <span class="flag-icon" id="from-flag">🇨🇳</span>
+                    <img id="from-flag-img" class="flag-img" src="https://flagcdn.com/w40/cn.png" alt="flag">
                     <div style="position: relative;">
                         <select id="from-currency">
                             <option value="CNY">CNY</option>
@@ -228,7 +230,6 @@
             </div>
 
             <!-- SWAP BUTTON -->
-            <!-- Absolute centering is tricky with gap. -->
             <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5;">
                 <div class="swap-btn" id="swap-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -241,7 +242,7 @@
             <div class="currency-row">
                 <input type="number" id="to-amount" value="..." readonly class="amount-input">
                 <div class="currency-selector">
-                    <span class="flag-icon" id="to-flag">🇯🇵</span>
+                    <img id="to-flag-img" class="flag-img" src="https://flagcdn.com/w40/jp.png" alt="flag">
                     <div style="position: relative;">
                         <select id="to-currency">
                             <option value="CNY">CNY</option>
@@ -272,10 +273,10 @@
     </div>
 
     <script>
-        const flags = {
-            'CNY': '🇨🇳', 'JPY': '🇯🇵', 'USD': '🇺🇸', 'EUR': '🇪🇺',
-            'GBP': '🇬🇧', 'AUD': '🇦🇺', 'CAD': '🇨🇦', 'KRW': '🇰🇷',
-            'SGD': '🇸🇬', 'HKD': '🇭🇰', 'TWD': '🇹🇼', 'THB': '🇹🇭', 'MYR': '🇲🇾'
+        const currencyToCountry = {
+            'CNY': 'cn', 'JPY': 'jp', 'USD': 'us', 'EUR': 'eu',
+            'GBP': 'gb', 'AUD': 'au', 'CAD': 'ca', 'KRW': 'kr',
+            'SGD': 'sg', 'HKD': 'hk', 'TWD': 'tw', 'THB': 'th', 'MYR': 'my'
         };
 
         const $ = id => document.getElementById(id);
@@ -290,15 +291,20 @@
         let ratesCache = {};
         let lastFetch = 0;
 
+        function updateFlag(imgId, currency) {
+            const code = currencyToCountry[currency] || 'un'; // un = united nations, fallback
+            $(imgId).src = `https://flagcdn.com/w40/${code}.png`;
+        }
+
         async function update() {
             const base = fromSelect.value;
             const target = toSelect.value;
 
             // Update flags
-            $('from-flag').textContent = flags[base];
-            $('to-flag').textContent = flags[target];
+            updateFlag('from-flag-img', base);
+            updateFlag('to-flag-img', target);
 
-            // Fetch if needed (cache 1 min)
+            // Fetch if needed
             const now = Date.now();
             if (!ratesCache[base] || now - lastFetch > 60000) {
                 try {
@@ -321,7 +327,7 @@
 
             if (!isNaN(amount)) {
                 // Formatting
-                const decimals = (target === 'JPY' || target === 'KRW') ? 0 : 2;
+                const decimals = (['JPY', 'KRW', 'TWD', 'THB'].includes(target)) ? 0 : 2;
                 toInput.value = (amount * rate).toFixed(decimals);
             } else {
                 toInput.value = '';
