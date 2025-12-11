@@ -1,42 +1,54 @@
 <template>
-  <div class="global-memo-container">
-    <div class="global-memo-card">
-      <div class="memo-header">
-        <span class="memo-icon">📢</span>
-        <span class="memo-title">お知らせ|公告</span>
-        <button class="edit-btn" @click="toggleEdit" :title="isEditing ? 'キャンセル' : '編集'">
-          <i :class="isEditing ? 'fas fa-times' : 'fas fa-edit'"></i>
-        </button>
-      </div>
-      
-      <div v-if="!isEditing" class="memo-body">
-        <p v-if="hasContent" class="memo-text" v-html="linkedContent"></p>
-        <p v-else class="memo-placeholder">お知らせはありません。編集ボタンで追加できます。</p>
-      </div>
-      
-      <div v-else class="memo-edit">
-        <textarea
-          v-model="editContent"
-          placeholder="お知らせを入力..."
-          rows="3"
-          ref="editTextarea"
-          @keydown.stop
-        ></textarea>
-        <div class="edit-actions">
-          <span v-if="saving" class="saving-indicator">
-            <i class="fas fa-spinner fa-spin"></i> 保存中...
-          </span>
-          <span v-if="error" class="error-indicator">{{ error }}</span>
-          <button class="btn btn-primary" @click="save" :disabled="saving">
-            <i class="fas fa-save"></i> 保存
+  <div class="global-widgets-container">
+    <div class="dashboard-widgets-row">
+      <!-- Left: Global Memo -->
+      <div class="global-memo-card widget-half">
+        <div class="memo-header">
+          <span class="memo-icon">📢</span>
+          <span class="memo-title">お知らせ|公告</span>
+          <button class="edit-btn" @click="toggleEdit" :title="isEditing ? 'キャンセル' : '編集'">
+            <i :class="isEditing ? 'fas fa-times' : 'fas fa-edit'"></i>
           </button>
+        </div>
+        
+        <div v-if="!isEditing" class="memo-body">
+          <p v-if="hasContent" class="memo-text" v-html="linkedContent"></p>
+          <p v-else class="memo-placeholder">お知らせはありません。編集ボタンで追加できます。</p>
+        </div>
+        
+        <div v-else class="memo-edit">
+          <textarea
+            v-model="editContent"
+            placeholder="お知らせを入力..."
+            rows="3"
+            ref="editTextarea"
+            @keydown.stop
+          ></textarea>
+          <div class="edit-actions">
+            <span v-if="saving" class="saving-indicator">
+              <i class="fas fa-spinner fa-spin"></i> 保存中...
+            </span>
+            <span v-if="error" class="error-indicator">{{ error }}</span>
+            <button class="btn btn-primary" @click="save" :disabled="saving">
+              <i class="fas fa-save"></i> 保存
+            </button>
+          </div>
+        </div>
+        
+        <div v-if="updatedBy && !isEditing" class="memo-footer">
+          <span class="update-info">
+            最終更新: {{ formattedDate }} by {{ updatedBy }}
+          </span>
         </div>
       </div>
       
-      <div v-if="updatedBy && !isEditing" class="memo-footer">
-        <span class="update-info">
-          最終更新: {{ formattedDate }} by {{ updatedBy }}
-        </span>
+      <!-- Right: Currency Converter -->
+      <div class="currency-card widget-half">
+        <!-- TradingView Widget BEGIN -->
+        <div class="tradingview-widget-container" ref="tvWidgetContainer">
+          <div class="tradingview-widget-container__widget"></div>
+        </div>
+        <!-- TradingView Widget END -->
       </div>
     </div>
   </div>
@@ -102,7 +114,41 @@ export default {
       return escaped.replace(urlRegex, '<a href="$1" target="_blank" rel="noreferrer">$1</a>');
     },
   },
+  mounted() {
+    this.injectTradingViewWidget();
+  },
   methods: {
+    injectTradingViewWidget() {
+      if (!this.$refs.tvWidgetContainer) return;
+      
+      // Check if script already exists to avoid duplication
+      if (this.$refs.tvWidgetContainer.querySelector('script')) return;
+
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-currency-converter.js';
+      script.async = true;
+      script.innerHTML = JSON.stringify({
+        "width": "100%",
+        "height": "100%", // Fill parent
+        "from": "CNY",
+        "to": "JPY",
+        "amount": 1,
+        "locale": "ja",
+        "style": "2", // Compact style? Or 1 for more detail
+        "interval": "1d",
+        "timestamp": "24h",
+        "calibration": "now",
+        "theme": "light",
+        "backgroundColor": "rgba(255, 255, 255, 0)", // Transparent? TradingView widget might not support rgba
+        "gridLineColor": "rgba(240, 243, 250, 0)",
+        "fontColor": "#787B86",
+        "isTransparent": false, // Try false first to ensure readability
+        "displayMode": "adaptive"
+      });
+      
+      this.$refs.tvWidgetContainer.appendChild(script);
+    },
     toggleEdit() {
       if (this.isEditing) {
         this.isEditing = false;
@@ -159,8 +205,25 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.global-memo-container {
+.global-widgets-container {
   margin-bottom: 1.5rem;
+}
+
+.dashboard-widgets-row {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.widget-half {
+  flex: 1;
+  min-width: 0; /* Prevent flex item from overflowing */
+  display: flex;
+  flex-direction: column;
 }
 
 .global-memo-card {
@@ -169,6 +232,24 @@ export default {
   padding: 16px 20px;
   color: white;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  /* Ensure same height look */
+  min-height: 180px; 
+}
+
+.currency-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden; /* For widget rounded corners */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  /* Padding 0 to let widget fill */
+  padding: 0; 
+  position: relative;
+  min-height: 180px;
+}
+
+.tradingview-widget-container {
+  width: 100%;
+  height: 100%;
 }
 
 .memo-header {
@@ -203,6 +284,10 @@ export default {
 }
 
 .memo-body {
+  flex: 1; /* Fill vertical space */
+  display: flex;
+  flex-direction: column;
+
   .memo-text {
     margin: 0;
     font-size: 0.95rem;
@@ -307,6 +392,10 @@ export default {
 :global(.dark) .global-memo-card {
   background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+:global(.dark) .currency-card {
+  background: #2d3748; /* Dark background matching theme */
 }
 
 :global(.dark) .btn-primary {
