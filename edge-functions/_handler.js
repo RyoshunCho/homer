@@ -830,28 +830,78 @@ function updateServiceMemo(yamlContent, serviceName, newMemo, updatedBy, updated
     }
 
     // If any fields were missing, insert them after the memo (or after last property)
-    // Find the current memo position after changes
+    // Find the current memo position after changes by re-scanning for the service
     let currentMemoIndex = -1;
+    let foundServiceAgain = false;
+    let newServiceIndent = -1;
+    let newInsertAfterLine = -1;
+
     for (let i = 0; i < lines.length; i++) {
-        if (lines[i].match(/^(\s*)memo:/) && foundService) {
-            const indentMatch = lines[i].match(/^(\s*)/);
-            if (indentMatch && indentMatch[1].length === serviceIndent + 2) {
-                currentMemoIndex = i;
+        const line = lines[i];
+
+        // Track indentation and list items to identify service boundaries
+        const listItemMatch = line.match(/^(\s*)-\s*/);
+        let currentItemIndent = listItemMatch ? listItemMatch[1].length : -1;
+
+        // Check for name match
+        const nameMatch = line.match(/^(\s*)name:\s*["']?(.+?)["']?\s*$/);
+        if (nameMatch) {
+            const nameValue = nameMatch[2].trim();
+            // Check if this is our target service
+            // We reuse the logic from the first pass: if it's a list item name or a property name
+            // The safest bet is matching the exact name we are looking for
+            if (nameValue === serviceName) {
+                foundServiceAgain = true;
+                // Determine indent level roughly
+                if (currentItemIndent >= 0) {
+                    newServiceIndent = currentItemIndent;
+                } else {
+                    // It's a property 'name:'
+                    newServiceIndent = nameMatch[1].length;
+                }
+                newInsertAfterLine = i;
+                continue;
+            }
+        }
+
+        if (foundServiceAgain) {
+            const indentMatch = line.match(/^(\s*)/);
+            const currentIndent = indentMatch ? indentMatch[1].length : 0;
+            const trimmed = line.trim();
+
+            // If we hit a new list item at same or lower indent, stop
+            if (trimmed.startsWith('- ') && currentIndent <= newServiceIndent) {
                 break;
+            }
+
+            // Check for memo line within this service
+            if (line.match(/^(\s*)memo:/)) {
+                // Ensure it's not a nested memo (if any) - check indent
+                if (currentIndent > newServiceIndent) {
+                    currentMemoIndex = i;
+                    break;
+                }
+            }
+
+            // Track insertion point just in case memo doesn't exist
+            if (trimmed && !trimmed.startsWith('#') && currentIndent > newServiceIndent && line.includes(':')) {
+                newInsertAfterLine = i;
             }
         }
     }
 
     // If memo was not found initially, insert it
-    if (memoLineIndex < 0) {
-        lines.splice(insertAfterLine + 1, 0, newMemoLine);
-        currentMemoIndex = insertAfterLine + 1;
+    if (memoLineIndex < 0 && currentMemoIndex < 0) {
+        const targetLine = newInsertAfterLine >= 0 ? newInsertAfterLine : insertAfterLine;
+        lines.splice(targetLine + 1, 0, newMemoLine);
+        currentMemoIndex = targetLine + 1;
     }
 
     // Find where to insert missing fields (after memo block)
     let insertPosition = currentMemoIndex + 1;
     // Skip multiline memo content
-    const memoIndentLevel = serviceIndent + 2;
+    const baseIndent = newServiceIndent >= 0 ? newServiceIndent : serviceIndent;
+    const memoIndentLevel = baseIndent + 2;
     while (insertPosition < lines.length) {
         const line = lines[insertPosition];
         const lineIndent = line.match(/^(\s*)/)[1].length;
