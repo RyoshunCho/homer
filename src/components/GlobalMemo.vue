@@ -44,11 +44,12 @@
       
       <!-- Right: Currency Converter -->
       <div class="currency-card widget-half">
-        <!-- TradingView Widget BEGIN -->
-        <div class="tradingview-widget-container" ref="tvWidgetContainer">
-          <div class="tradingview-widget-container__widget"></div>
-        </div>
-        <!-- TradingView Widget END -->
+        <iframe 
+          src="/currency_widget.html" 
+          frameborder="0" 
+          scrolling="no" 
+          style="width: 100%; height: 100%;"
+        ></iframe>
       </div>
     </div>
   </div>
@@ -114,41 +115,7 @@ export default {
       return escaped.replace(urlRegex, '<a href="$1" target="_blank" rel="noreferrer">$1</a>');
     },
   },
-  mounted() {
-    this.injectTradingViewWidget();
-  },
   methods: {
-    injectTradingViewWidget() {
-      if (!this.$refs.tvWidgetContainer) return;
-      
-      // Check if script already exists to avoid duplication
-      if (this.$refs.tvWidgetContainer.querySelector('script')) return;
-
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-currency-converter.js';
-      script.async = true;
-      script.innerHTML = JSON.stringify({
-        "width": "100%",
-        "height": "100%", // Fill parent
-        "from": "CNY",
-        "to": "JPY",
-        "amount": 1,
-        "locale": "ja",
-        "style": "2", // Compact style? Or 1 for more detail
-        "interval": "1d",
-        "timestamp": "24h",
-        "calibration": "now",
-        "theme": "light",
-        "backgroundColor": "rgba(255, 255, 255, 0)", // Transparent? TradingView widget might not support rgba
-        "gridLineColor": "rgba(240, 243, 250, 0)",
-        "fontColor": "#787B86",
-        "isTransparent": false, // Try false first to ensure readability
-        "displayMode": "adaptive"
-      });
-      
-      this.$refs.tvWidgetContainer.appendChild(script);
-    },
     toggleEdit() {
       if (this.isEditing) {
         this.isEditing = false;
