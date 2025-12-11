@@ -6,7 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Currency Converter</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #202124;
+            --subtext-color: #5f6368;
+            --border-color: #dadce0;
+            --primary-color: #1a73e8;
+            --hover-bg: #f8f9fa;
+            --input-bg: #f1f3f4;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #2d3748;
+                /* Matching dashboard dark card */
+                --text-color: #e8eaed;
+                --subtext-color: #9aa0a6;
+                --border-color: #5f6368;
+                --primary-color: #8ab4f8;
+                --hover-bg: #3c4043;
+                --input-bg: #1f2733;
+            }
+        }
 
         body,
         html {
@@ -14,214 +37,305 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: transparent;
+            /* Let container API handle bg */
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            /* No scrollbars */
         }
 
-        .widget-container {
-            width: 90%;
-            height: 90%;
-            background: #ffffff;
-            /* border-radius: 12px; */
-            /* Parent iframe should handle border radius if possible, but internal card looks nice */
+        .widget-wrapper {
+            height: 100%;
+            width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 0 10px;
+            padding: 0 20px;
             box-sizing: border-box;
         }
 
-        .converter-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 10px;
-            border: 1px solid #e9ecef;
-            transition: border-color 0.2s;
-        }
-
-        .converter-row:focus-within {
-            border-color: #3367d6;
-            background: #fff;
-        }
-
-        .input-group {
-            flex: 1;
+        .converter-card {
             display: flex;
             flex-direction: column;
+            gap: 12px;
         }
 
-        input {
+        .currency-row {
+            display: flex;
+            align-items: center;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            transition: border 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .currency-row:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .amount-input {
+            flex: 1;
+            min-width: 0;
             border: none;
             background: transparent;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             font-weight: 600;
-            color: #202124;
-            width: 100%;
+            color: var(--text-color);
             outline: none;
             padding: 0;
+        }
+
+        /* Remove spin buttons */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
             margin: 0;
         }
 
-        .currency-label {
-            font-size: 0.75rem;
-            color: #5f6368;
-            font-weight: 500;
-            margin-top: 4px;
-        }
-
-        .flag {
-            font-size: 1.5rem;
-            margin-left: 10px;
-            line-height: 1;
-        }
-
-        .swap-icon {
-            font-size: 1rem;
-            color: #5f6368;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            transition: background 0.2s;
+        .currency-selector {
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin: -6px 0;
-            align-self: center;
+            gap: 6px;
+            margin-left: 10px;
+            border-left: 1px solid var(--border-color);
+            padding-left: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        select {
+            appearance: none;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-color);
+            outline: none;
+            cursor: pointer;
+            padding-right: 16px;
+            /* Space for arrow */
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235f6368' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            pointer-events: none;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .select-arrow {
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa0a6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            }
+        }
+
+        .flag-icon {
+            font-size: 1.2rem;
+        }
+
+        .swap-wrapper {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             z-index: 10;
         }
 
-        .swap-icon:hover {
-            background: #f1f3f4;
-            color: #3367d6;
+        .swap-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background 0.2s;
         }
 
-        .rate-info {
+        .swap-btn:hover {
+            background: var(--hover-bg);
+            transform: scale(1.1);
+        }
+
+        .swap-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .info-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding: 0 4px;
+        }
+
+        .rate-text {
             font-size: 0.75rem;
-            color: #5f6368;
-            text-align: right;
-            margin-top: 2px;
+            color: var(--subtext-color);
+            font-weight: 500;
         }
 
-        /* Dark mode support via query param or system pref */
-        @media (prefers-color-scheme: dark) {
-            .widget-container {
-                background: #2b2b2b;
-            }
-
-            .converter-row {
-                background: #3c4043;
-                border-color: #5f6368;
-            }
-
-            .converter-row:focus-within {
-                border-color: #8ab4f8;
-                background: #3c4043;
-            }
-
-            input {
-                color: #e8eaed;
-            }
-
-            .currency-label {
-                color: #9aa0a6;
-            }
-
-            .swap-icon {
-                color: #9aa0a6;
-            }
-
-            .swap-icon:hover {
-                background: #303134;
-                color: #8ab4f8;
-            }
-
-            .rate-info {
-                color: #9aa0a6;
-            }
+        .last-update {
+            font-size: 0.7rem;
+            color: var(--subtext-color);
+            opacity: 0.8;
         }
     </style>
 </head>
 
 <body>
-    <div class="widget-container">
-        <!-- From CNY -->
-        <div class="converter-row">
-            <div class="input-group">
-                <input type="number" id="from-amount" value="1" min="0" step="any">
-                <div class="currency-label">CNY - 中国元</div>
+    <div class="widget-wrapper">
+        <div class="converter-card" style="position: relative;">
+
+            <!-- FROM ROW -->
+            <div class="currency-row">
+                <input type="number" id="from-amount" value="1" min="0" step="any" class="amount-input">
+                <div class="currency-selector">
+                    <span class="flag-icon" id="from-flag">🇨🇳</span>
+                    <div style="position: relative;">
+                        <select id="from-currency">
+                            <option value="CNY">CNY</option>
+                            <option value="JPY">JPY</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="KRW">KRW</option>
+                            <option value="HKD">HKD</option>
+                            <option value="TWD">TWD</option>
+                            <option value="THB">THB</option>
+                        </select>
+                        <i class="select-arrow"></i>
+                    </div>
+                </div>
             </div>
-            <span class="flag">🇨🇳</span>
-        </div>
 
-        <!-- Swap / Arrow -->
-        <div class="swap-icon" title="Swap (Coming soon)">
-            ⬇️
-        </div>
-
-        <!-- To JPY -->
-        <div class="converter-row">
-            <div class="input-group">
-                <input type="number" id="to-amount" value="..." readonly>
-                <div class="currency-label">JPY - 日本円</div>
+            <!-- SWAP BUTTON -->
+            <div class="swap-wrapper" style="top: 50%; margin-top: 0;">
+                <!-- Adjust position via JS or manual margin to center perfectly between rows if needed -->
+                <!-- Actually, flex gap handles spacing, let's just put it in between or absolute center -->
             </div>
-            <span class="flag">🇯🇵</span>
+            <!-- Absolute centering is tricky with gap. Let's use a negative margin trick on a block element or just position absolute relative to card -->
+            <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5;">
+                <div class="swap-btn" id="swap-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M7 10l5-5 5 5M7 14l5 5 5-5" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- TO ROW -->
+            <div class="currency-row">
+                <input type="number" id="to-amount" value="..." readonly class="amount-input">
+                <div class="currency-selector">
+                    <span class="flag-icon" id="to-flag">🇯🇵</span>
+                    <div style="position: relative;">
+                        <select id="to-currency">
+                            <option value="CNY">CNY</option>
+                            <option value="JPY" selected>JPY</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="KRW">KRW</option>
+                            <option value="HKD">HKD</option>
+                            <option value="TWD">TWD</option>
+                            <option value="THB">THB</option>
+                        </select>
+                        <i class="select-arrow"></i>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="rate-info" id="rate-display">Creating...</div>
+        <div class="info-footer">
+            <span class="rate-text" id="rate-display">Loading...</span>
+            <span class="last-update" id="time-display"></span>
+        </div>
     </div>
 
     <script>
-        const fromInput = document.getElementById('from-amount');
-        const toInput = document.getElementById('to-amount');
-        const rateDisplay = document.getElementById('rate-display');
-        let exchangeRate = 0;
+        const flags = {
+            'CNY': '🇨🇳', 'JPY': '🇯🇵', 'USD': '🇺🇸', 'EUR': '🇪🇺',
+            'KRW': '🇰🇷', 'HKD': '🇭🇰', 'TWD': '🇹🇼', 'THB': '🇹🇭'
+        };
 
-        async function fetchRate() {
-            try {
-                // Using open.er-api.com which requires no key
-                const res = await fetch('https://open.er-api.com/v6/latest/CNY');
-                if (!res.ok) throw new Error('API Error');
-                const data = await res.json();
-                exchangeRate = data.rates.JPY;
+        const $ = id => document.getElementById(id);
+        const fromInput = $('from-amount');
+        const toInput = $('to-amount');
+        const fromSelect = $('from-currency');
+        const toSelect = $('to-currency');
+        const swapBtn = $('swap-btn');
+        const rateDisplay = $('rate-display');
+        const timeDisplay = $('time-display');
 
-                updateCalculation();
+        let ratesCache = {};
+        let lastFetch = 0;
 
-                // Format rate time
-                const date = new Date(data.time_last_update_utc);
-                const timeStr = date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-                rateDisplay.textContent = `1 CNY = ${exchangeRate.toFixed(4)} JPY (${timeStr})`;
-            } catch (e) {
-                console.error(e);
-                rateDisplay.textContent = 'レート取得エラー';
+        async function update() {
+            const base = fromSelect.value;
+            const target = toSelect.value;
+
+            // Update flags
+            $('from-flag').textContent = flags[base];
+            $('to-flag').textContent = flags[target];
+
+            // Fetch if needed (cache 1 min)
+            const now = Date.now();
+            if (!ratesCache[base] || now - lastFetch > 60000) {
+                try {
+                    const res = await fetch(`https://open.er-api.com/v6/latest/${base}`);
+                    const data = await res.json();
+                    ratesCache[base] = data.rates;
+                    lastFetch = now;
+
+                    const date = new Date(data.time_last_update_utc);
+                    timeDisplay.textContent = date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+                } catch (e) {
+                    console.error(e);
+                    return;
+                }
             }
-        }
 
-        function updateCalculation() {
-            if (!exchangeRate) return;
-            const val = parseFloat(fromInput.value);
-            if (!isNaN(val)) {
-                // Format with minimal decimal places for Yen (usually 0 or 2)
-                toInput.value = (val * exchangeRate).toFixed(2);
+            // Calculate
+            const rate = ratesCache[base][target];
+            const amount = parseFloat(fromInput.value);
+
+            if (!isNaN(amount)) {
+                // Formatting
+                const decimals = (target === 'JPY' || target === 'KRW') ? 0 : 2;
+                toInput.value = (amount * rate).toFixed(decimals);
             } else {
                 toInput.value = '';
             }
+
+            rateDisplay.textContent = `1 ${base} = ${rate.toFixed(4)} ${target}`;
         }
 
-        fromInput.addEventListener('input', updateCalculation);
+        fromSelect.addEventListener('change', update);
+        toSelect.addEventListener('change', update);
+        fromInput.addEventListener('input', update);
 
-        // Initial fetch
-        fetchRate();
+        swapBtn.addEventListener('click', () => {
+            const t = fromSelect.value;
+            fromSelect.value = toSelect.value;
+            toSelect.value = t;
+            update();
+        });
 
-        // Refresh every minute
-        setInterval(fetchRate, 60000);
+        // Initialize
+        update();
     </script>
 </body>
 
