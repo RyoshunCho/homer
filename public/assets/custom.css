@@ -14,42 +14,7 @@ body *:not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):no
   font-family: 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans KR', sans-serif !important;
 }
 
+
 /* =================================================================== */
-/* Custom Styles                                                      */
+/* Custom Styles REMOVED to restore original Homer look               */
 /* =================================================================== */
-
-/* Custom card colors */
-/* Use with `class:` property of services in config.yml */
-body #app .card.green {
-  background-color: #006600;
-  color: #00ff00;
-}
-
-/* Mobile Navbar Fix */
-@media screen and (max-width: 1023px) {
-
-  .navbar-menu,
-  .navbar-menu.is-active {
-    background-color: var(--card-background) !important;
-    box-shadow: 0 8px 16px rgba(10, 10, 10, 0.1);
-    padding: 0.5rem 0;
-  }
-
-  .navbar-item,
-  .navbar-link {
-    color: var(--text) !important;
-    background-color: transparent !important;
-  }
-
-  .navbar-item:hover,
-  .navbar-link:hover {
-    background-color: var(--background) !important;
-    color: var(--text) !important;
-  }
-}
-
-/* Global Background Fix */
-html,
-body {
-  background-color: var(--background) !important;
-}
