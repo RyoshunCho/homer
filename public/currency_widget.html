@@ -212,10 +212,15 @@
                             <option value="JPY">JPY</option>
                             <option value="USD">USD</option>
                             <option value="EUR">EUR</option>
+                            <option value="GBP">GBP</option>
+                            <option value="AUD">AUD</option>
+                            <option value="CAD">CAD</option>
                             <option value="KRW">KRW</option>
+                            <option value="SGD">SGD</option>
                             <option value="HKD">HKD</option>
                             <option value="TWD">TWD</option>
                             <option value="THB">THB</option>
+                            <option value="MYR">MYR</option>
                         </select>
                         <i class="select-arrow"></i>
                     </div>
@@ -223,11 +228,7 @@
             </div>
 
             <!-- SWAP BUTTON -->
-            <div class="swap-wrapper" style="top: 50%; margin-top: 0;">
-                <!-- Adjust position via JS or manual margin to center perfectly between rows if needed -->
-                <!-- Actually, flex gap handles spacing, let's just put it in between or absolute center -->
-            </div>
-            <!-- Absolute centering is tricky with gap. Let's use a negative margin trick on a block element or just position absolute relative to card -->
+            <!-- Absolute centering is tricky with gap. -->
             <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5;">
                 <div class="swap-btn" id="swap-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -247,10 +248,15 @@
                             <option value="JPY" selected>JPY</option>
                             <option value="USD">USD</option>
                             <option value="EUR">EUR</option>
+                            <option value="GBP">GBP</option>
+                            <option value="AUD">AUD</option>
+                            <option value="CAD">CAD</option>
                             <option value="KRW">KRW</option>
+                            <option value="SGD">SGD</option>
                             <option value="HKD">HKD</option>
                             <option value="TWD">TWD</option>
                             <option value="THB">THB</option>
+                            <option value="MYR">MYR</option>
                         </select>
                         <i class="select-arrow"></i>
                     </div>
@@ -268,7 +274,8 @@
     <script>
         const flags = {
             'CNY': '🇨🇳', 'JPY': '🇯🇵', 'USD': '🇺🇸', 'EUR': '🇪🇺',
-            'KRW': '🇰🇷', 'HKD': '🇭🇰', 'TWD': '🇹🇼', 'THB': '🇹🇭'
+            'GBP': '🇬🇧', 'AUD': '🇦🇺', 'CAD': '🇨🇦', 'KRW': '🇰🇷',
+            'SGD': '🇸🇬', 'HKD': '🇭🇰', 'TWD': '🇹🇼', 'THB': '🇹🇭', 'MYR': '🇲🇾'
         };
 
         const $ = id => document.getElementById(id);
