@@ -212,15 +212,25 @@ export default {
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
-.currency-card,
-.phone-validator-card {
+.currency-card {
   background: white;
   border-radius: 12px;
   overflow: hidden; 
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   padding: 0; 
   position: relative;
-  /* Remove min-height to rely on content or stretch */
+  display: flex; 
+  flex-direction: column;
+}
+
+.phone-validator-card {
+  background: white;
+  border-radius: 12px;
+  /* overflow: hidden; */ /* Allow shadows/content to flow if needed, but usually hidden is safer for radii */
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  /* padding: 0; REMOVED to allow component padding */
+  position: relative;
   display: flex; 
   flex-direction: column;
 }
