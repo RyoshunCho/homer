@@ -43,14 +43,7 @@
       </div>
       
       <!-- Middle: Phone Validator -->
-      <div class="phone-validator-card widget-half">
-        <iframe 
-          src="/phone_validator_widget.html" 
-          frameborder="0" 
-          scrolling="auto" 
-          style="width: 100%; height: 100%;"
-        ></iframe>
-      </div>
+      <PhoneValidatorWidget class="widget-half phone-validator-card" />
 
       <!-- Right: Currency Converter -->
       <div class="currency-card widget-half">
@@ -66,8 +59,13 @@
 </template>
 
 <script>
+import PhoneValidatorWidget from './PhoneValidatorWidget.vue';
+
 export default {
   name: "GlobalMemo",
+  components: {
+    PhoneValidatorWidget
+  },
   props: {
     globalMemo: {
       type: Object,
@@ -212,6 +210,7 @@ export default {
   /* Ensure same height look */
   min-height: 180px; 
 }
+
 
 .currency-card,
 .phone-validator-card {
