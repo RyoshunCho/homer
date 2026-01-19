@@ -47,7 +47,7 @@
         <iframe 
           src="/phone_validator_widget.html" 
           frameborder="0" 
-          scrolling="no" 
+          scrolling="auto" 
           style="width: 100%; height: 100%;"
         ></iframe>
       </div>
