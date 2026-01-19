@@ -42,6 +42,16 @@
         </div>
       </div>
       
+      <!-- Middle: Phone Validator -->
+      <div class="phone-validator-card widget-half">
+        <iframe 
+          src="/phone_validator_widget.html" 
+          frameborder="0" 
+          scrolling="no" 
+          style="width: 100%; height: 100%;"
+        ></iframe>
+      </div>
+
       <!-- Right: Currency Converter -->
       <div class="currency-card widget-half">
         <iframe 
@@ -203,7 +213,8 @@ export default {
   min-height: 180px; 
 }
 
-.currency-card {
+.currency-card,
+.phone-validator-card {
   background: white;
   border-radius: 12px;
   overflow: hidden; /* For widget rounded corners */
@@ -361,7 +372,8 @@ export default {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
-:global(.dark) .currency-card {
+:global(.dark) .currency-card,
+:global(.dark) .phone-validator-card {
   background: #2d3748; /* Dark background matching theme */
 }
 
