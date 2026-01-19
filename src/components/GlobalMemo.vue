@@ -187,18 +187,21 @@ export default {
 .dashboard-widgets-row {
   display: flex;
   gap: 20px;
-  align-items: stretch;
+  align-items: stretch; /* Critical for equal height */
 
   @media (max-width: 768px) {
     flex-direction: column;
+    align-items: normal; /* Reset on mobile */
   }
 }
 
 .widget-half {
   flex: 1;
-  min-width: 0; /* Prevent flex item from overflowing */
+  min-width: 0; 
   display: flex;
   flex-direction: column;
+  /* Ensure it fills height if simplified flex behavior fails */
+  align-self: stretch; 
 }
 
 .global-memo-card {
@@ -207,21 +210,19 @@ export default {
   padding: 16px 20px;
   color: white;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  /* Ensure same height look */
-  min-height: 180px; 
 }
-
 
 .currency-card,
 .phone-validator-card {
   background: white;
   border-radius: 12px;
-  overflow: hidden; /* For widget rounded corners */
+  overflow: hidden; 
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  /* Padding 0 to let widget fill */
   padding: 0; 
   position: relative;
-  min-height: 180px;
+  /* Remove min-height to rely on content or stretch */
+  display: flex; 
+  flex-direction: column;
 }
 
 .tradingview-widget-container {

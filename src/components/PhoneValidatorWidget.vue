@@ -370,77 +370,92 @@ export default {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 .phone-widget-container {
   width: 100%;
-  height: 100%;
-  padding: 20px;
+  padding: 24px;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
   color: #333;
   display: flex;
   flex-direction: column;
+  background-color: transparent; /* Parent controls BG */
+  flex: 1; /* Key to stretching inside parental flex item */
 }
 
 .widget-header {
   font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: inherit;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #2c3e50;
+  letter-spacing: -0.5px;
 }
 
 .input-group {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 .phone-input {
   flex: 1;
-  border: 1px solid #dadce0;
+  border: 1px solid #e1e4e8;
   border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 1rem;
+  padding: 10px 14px;
+  font-size: 0.95rem;
   outline: none;
-  background: #fff;
+  background: #f8f9fa;
   color: #202124;
+  transition: all 0.2s ease;
 }
 
 .phone-input:focus {
-  border-color: #1a73e8;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  border-color: #3367d6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(51, 103, 214, 0.1);
 }
 
 .action-btn {
-  background: #1a73e8;
+  background: #3367d6;
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 0 16px;
+  padding: 0 20px;
   font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
   white-space: nowrap;
+  transition: background 0.2s;
+  box-shadow: 0 2px 4px rgba(51, 103, 214, 0.2);
 }
 
 .action-btn:hover {
-  opacity: 0.9;
+  background: #2850a7;
 }
 
 .result-card {
-  background: #fff;
-  border: 1px solid #dadce0;
+  background: #fff; /* Already on white, but distinct area helps */
+  /* border: 1px solid #f1f3f4; */ /* Optional inner border */
   border-radius: 8px;
-  padding: 16px;
+  padding: 8px 0; /* Less padding, integrate into flow */
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .formatted-number {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 4px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
 }
 
 .result-row {
@@ -448,80 +463,124 @@ export default {
   justify-content: space-between;
   align-items: center;
   font-size: 0.9rem;
+  padding: 4px 0;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.result-row:last-child {
+  border-bottom: none;
 }
 
 .alternatives-container {
     justify-content: flex-start;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #e1e4e8;
 }
 
 .label {
-  color: #5f6368;
+  color: #858585;
+  font-weight: 500;
+  min-width: 100px;
 }
 
 .value {
   font-weight: 600;
+  color: #2c3e50;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  text-align: right;
 }
 
 .flag-icon {
   width: 20px;
-  height: 15px;
+  height: auto;
   border-radius: 2px;
-  object-fit: cover;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .flag-icon-sm {
   width: 16px;
   height: 12px;
-  border-radius: 1px;
+  border-radius: 2px;
   object-fit: cover;
 }
 
 .status-badge {
-  font-size: 0.75rem;
-  padding: 2px 8px;
-  border-radius: 12px;
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 20px;
   font-weight: 600;
-  border: 1px solid #dadce0;
-  background: #f8f9fa;
+  border: 1px solid #e1e4e8;
+  background: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  transition: all 0.2s;
+  color: #555;
 }
 
-/* Dark mode overrides (naive implementation via global class check or media query not scoped) 
-   But since we are in a Vue component, we can assume parent passes standard classes or we use media query.
-   Existing app uses :global(.dark)
-*/
+.status-badge:hover {
+  background: #f1f3f4;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+/* Dark mode overrides via global class check */
 :global(.dark) .phone-widget-container {
   color: #e8eaed;
 }
 
 :global(.dark) .phone-input {
-  background: #1f2733;
+  background: #2d3748; /* Matching card bg slightly lighter? or darker input */
+  background: rgba(0,0,0,0.2);
   color: #e8eaed;
-  border-color: #5f6368;
+  border-color: #4a5568;
+}
+
+:global(.dark) .phone-input:focus {
+  border-color: #667eea;
+}
+
+:global(.dark) .widget-header {
+  color: #fff;
 }
 
 :global(.dark) .result-card {
-  background: #2d3748;
-  border-color: #5f6368;
+  background: transparent;
+  border: none;
 }
 
 :global(.dark) .label {
-  color: #9aa0a6;
+  color: #a0aec0;
+}
+
+:global(.dark) .value {
+  color: #f7fafc;
+}
+
+:global(.dark) .formatted-number {
+  color: #fff;
+}
+
+:global(.dark) .result-row {
+  border-color: rgba(255,255,255,0.05);
+}
+
+:global(.dark) .alternatives-container {
+  border-color: rgba(255,255,255,0.1);
 }
 
 :global(.dark) .status-badge {
-  background: #3c4043;
-  color: #e8eaed;
-  border-color: #5f6368;
+  background: rgba(255,255,255,0.05);
+  color: #e2e8f0;
+  border-color: rgba(255,255,255,0.1);
+}
+:global(.dark) .status-badge:hover {
+  background: rgba(255,255,255,0.1);
 }
 </style>
