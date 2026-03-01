@@ -51,7 +51,7 @@
           src="/currency_widget.html" 
           frameborder="0" 
           scrolling="no" 
-          style="width: 100%; height: 100%;"
+          style="width: 100%; height: 100%; flex: 1; min-height: 240px; border: none;"
         ></iframe>
       </div>
     </div>
