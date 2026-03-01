@@ -400,6 +400,7 @@ export default {
 
 .phone-input {
   flex: 1;
+  min-width: 0;
   border: 1px solid #e1e4e8;
   border-radius: 8px;
   padding: 10px 14px;
@@ -426,6 +427,7 @@ export default {
   font-size: 0.9rem;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
   transition: background 0.2s;
   box-shadow: 0 2px 4px rgba(51, 103, 214, 0.2);
 }

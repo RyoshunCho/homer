@@ -221,6 +221,7 @@ export default {
   position: relative;
   display: flex; 
   flex-direction: column;
+  min-height: 220px;
 }
 
 .phone-validator-card {
