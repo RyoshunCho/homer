@@ -210,6 +210,14 @@ export default async function handleRequest(request, env = {}) {
         return handleAdminCheck(request, env);
     }
 
+    // 2.65 Handle raw config YAML before static assets can shadow it.
+    if (url.pathname === "/api/config.yml") {
+        if (!checkLoginCookie(request)) {
+            return redirectToLogin(url);
+        }
+        return handleConfigProxy(request, env);
+    }
+
     // 2.7 Handle Config API (GET/PUT)
     if (url.pathname === "/api/config") {
         // console.log(`[Debug] Matched /api/config`);
@@ -379,7 +387,7 @@ async function handleConfigProxy(request, env) {
         const newHeaders = new Headers(response.headers);
         newHeaders.set("Content-Type", "text/yaml");
         newHeaders.set("X-Auth-Status", "logged_in");
-        newHeaders.set("Cache-Control", "public, max-age=3600");
+        newHeaders.set("Cache-Control", "no-store, no-cache, must-revalidate");
 
         return new Response(response.body, {
             status: 200,

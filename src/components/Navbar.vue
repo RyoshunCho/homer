@@ -86,7 +86,7 @@ export default {
     refreshConfig: async function () {
       try {
         // Fetch config with timestamp to bypass cache
-        await fetch(`/assets/config.yml?t=${Date.now()}`, {
+        await fetch(`/api/config.yml?t=${Date.now()}`, {
           cache: "reload",
         });
         // Reload the page to reflect changes

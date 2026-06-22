@@ -238,7 +238,7 @@ export default {
         this.createStylesheet(stylesheet);
       }
     },
-    getConfig: function (path = "assets/config.yml") {
+    getConfig: function (path = "api/config.yml") {
       return fetch(path).then((response) => {
         if (response.status == 404 || response.redirected) {
           this.configNotFound = true;
