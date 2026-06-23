@@ -4,7 +4,7 @@
       <!-- Left: Global Memo -->
       <div class="global-memo-card widget-half">
         <div class="memo-header">
-          <span class="memo-icon">📢</span>
+          <span class="memo-icon"><i class="fas fa-bullhorn"></i></span>
           <span class="memo-title">お知らせ|公告</span>
           <button class="edit-btn" @click="toggleEdit" :title="isEditing ? 'キャンセル' : '編集'">
             <i :class="isEditing ? 'fas fa-times' : 'fas fa-edit'"></i>
@@ -181,7 +181,7 @@ export default {
 
 <style scoped lang="scss">
 .global-widgets-container {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 .dashboard-widgets-row {
@@ -205,18 +205,22 @@ export default {
 }
 
 .global-memo-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), transparent 52%),
+    var(--card-background);
+  border: 1px solid var(--surface-border);
+  border-radius: 1.1rem;
   padding: 16px 20px;
-  color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  color: var(--text);
+  box-shadow: 0 18px 52px -42px var(--card-shadow);
 }
 
 .currency-card {
-  background: white;
-  border-radius: 12px;
+  background: var(--card-background);
+  border: 1px solid var(--surface-border);
+  border-radius: 1.1rem;
   overflow: hidden; 
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 18px 52px -42px var(--card-shadow);
   padding: 0; 
   position: relative;
   display: flex; 
@@ -225,11 +229,12 @@ export default {
 }
 
 .phone-validator-card {
-  background: white;
-  border-radius: 12px;
+  background: var(--card-background);
+  border: 1px solid var(--surface-border);
+  border-radius: 1.1rem;
   /* overflow: hidden; */ /* Allow shadows/content to flow if needed, but usually hidden is safer for radii */
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 18px 52px -42px var(--card-shadow);
   /* padding: 0; REMOVED to allow component padding */
   position: relative;
   display: flex; 
@@ -248,26 +253,40 @@ export default {
   margin-bottom: 10px;
 
   .memo-icon {
-    font-size: 1.3rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 999px;
+    color: var(--highlight-primary);
+    background: var(--surface-soft);
   }
 
   .memo-title {
     font-weight: 600;
     font-size: 1rem;
     flex: 1;
+    color: var(--text-title);
   }
 
   .edit-btn {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--surface-soft);
     border: none;
-    color: white;
+    color: var(--text-title);
     padding: 6px 10px;
-    border-radius: 6px;
+    border-radius: 999px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition:
+      background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.3);
+      background: color-mix(in srgb, var(--highlight-primary) 18%, transparent);
+    }
+
+    &:active {
+      transform: translateY(1px) scale(0.98);
     }
   }
 }
@@ -283,13 +302,13 @@ export default {
     line-height: 1.6;
 
     :deep(a) {
-      color: #fff !important;
+      color: var(--link) !important;
       text-decoration: underline;
       font-weight: 500;
-      text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+      text-shadow: none;
       
       &:hover {
-        color: #a5f3fc !important;
+        color: var(--link-hover) !important;
       }
     }
   }
@@ -306,17 +325,17 @@ export default {
   textarea {
     width: 100%;
     padding: 10px;
-    border: none;
-    border-radius: 8px;
+    border: 1px solid var(--surface-border);
+    border-radius: 14px;
     font-size: 0.95rem;
     resize: vertical;
     min-height: 80px;
-    background: rgba(255, 255, 255, 0.95);
-    color: #333;
+    background: var(--input-background);
+    color: var(--text);
 
     &:focus {
       outline: none;
-      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 0 4px var(--focus-ring);
     }
   }
 
@@ -342,7 +361,7 @@ export default {
 .memo-footer {
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid var(--surface-border);
 
   .update-info {
     font-size: 0.8rem;
@@ -356,40 +375,41 @@ export default {
   gap: 6px;
   padding: 8px 14px;
   border: none;
-  border-radius: 6px;
+  border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition:
+    background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px) scale(0.98);
+  }
 }
 
 .btn-primary {
-  background: white;
-  color: #667eea;
+  background: var(--highlight-primary);
+  color: var(--text-header);
 
   &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--highlight-hover);
   }
 }
 
 /* Dark theme adjustments */
-:global(.dark) .global-memo-card {
-  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
 :global(.dark) .currency-card,
 :global(.dark) .phone-validator-card {
-  background: #2d3748; /* Dark background matching theme */
+  background: var(--card-background);
 }
 
 :global(.dark) .btn-primary {
-  background: rgba(255, 255, 255, 0.9);
-  color: #4a5568;
+  background: var(--highlight-primary);
+  color: var(--text-header);
 }
 </style>

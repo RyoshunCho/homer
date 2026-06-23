@@ -5,6 +5,12 @@
   --highlight-hover: #bebebe;
   --background: #fff5f2;
   --card-background: rgba(255, 245, 242, 0.8);
+  --surface-elevated: rgba(255, 250, 248, 0.86);
+  --surface-soft: rgba(17, 17, 17, 0.06);
+  --surface-border: rgba(17, 17, 17, 0.12);
+  --input-background: rgba(255, 250, 248, 0.7);
+  --header-surface: rgba(255, 245, 242, 0.72);
+  --focus-ring: rgba(17, 17, 17, 0.14);
   --text: #000000;
   --text-header: #000000;
   --text-title: #000000;
@@ -21,6 +27,12 @@
   --highlight-hover: #1f2347;
   --background: #12152b;
   --card-background: rgba(24, 28, 58, 0.8);
+  --surface-elevated: rgba(24, 28, 58, 0.84);
+  --surface-soft: rgba(66, 133, 244, 0.13);
+  --surface-border: rgba(238, 242, 255, 0.13);
+  --input-background: rgba(11, 14, 31, 0.58);
+  --header-surface: rgba(18, 21, 43, 0.58);
+  --focus-ring: rgba(66, 133, 244, 0.24);
   --text: #eaeaea;
   --text-header: #fafafa;
   --text-title: #fafafa;
@@ -40,7 +52,7 @@
     .navbar,
     .navbar a:focus,
     .navbar a:hover {
-      background-color: rgba(0, 0, 0, 0);
+      background: transparent;
     }
     .search-bar input {
       opacity: 20%;

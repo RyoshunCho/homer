@@ -8,19 +8,22 @@
           @click="openMemoEditor"
           @mouseenter="showMemoTooltip"
           @mouseleave="hideMemoTooltip"
-        >📝</span>
+          title="Memo"
+        ><i class="fas fa-note-sticky"></i></span>
         <a
           v-if="item.doc"
           :href="item.doc"
           target="_blank"
           rel="noreferrer"
-        >📙</a>
+          title="Documentation"
+        ><i class="fas fa-book-open"></i></a>
         <a
           v-if="item.video"
           :href="item.video"
           target="_blank"
           rel="noreferrer"
-        >📺</a>
+          title="Video"
+        ><i class="fas fa-circle-play"></i></a>
       </div>
       <a :href="item.url" :target="item.target || '_blank'" rel="noreferrer">
         <div class="card-content">
@@ -28,7 +31,11 @@
             <slot name="icon">
               <div v-if="item.logo" class="media-left">
                 <figure class="image is-48x48">
-                  <img :src="item.logo" :alt="`${item.name} logo`" />
+                  <img
+                    :src="item.logo"
+                    :alt="`${item.name} logo`"
+                    @error="$event.target.classList.add('is-broken-logo')"
+                  />
                 </figure>
               </div>
               <div v-if="item.icon" class="media-left">
@@ -88,7 +95,7 @@
       <div v-if="showMemoModal" class="memo-editor-overlay" @click.self="closeMemoModal">
         <div class="memo-editor-modal">
           <div class="modal-header">
-            <h3>📝 {{ item.name }} - Memo</h3>
+            <h3><i class="fas fa-note-sticky"></i> {{ item.name }} - Memo</h3>
             <button class="close-btn" @click="closeMemoModal" title="Close">
               <i class="fas fa-times"></i>
             </button>
@@ -303,16 +310,29 @@ export default {
   top: 0.5rem;
   right: 0.5rem;
   z-index: 10;
-  font-size: 1.5rem;
+  display: flex;
+  gap: 0.35rem;
+  font-size: 0.9rem;
 
   a, .memo-icon {
     text-decoration: none;
-    transition: transform 0.2s;
-    display: inline-block;
+    transition:
+      transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 260ms cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.65rem;
+    height: 1.65rem;
+    border: 1px solid var(--surface-border, rgba(0, 0, 0, 0.1));
+    border-radius: 999px;
+    background: var(--surface-elevated, rgba(255, 255, 255, 0.82));
     cursor: pointer;
 
     &:hover {
-      transform: scale(1.3);
+      background: var(--surface-soft, rgba(51, 103, 214, 0.08));
+      transform: translateY(-1px) scale(1.04);
     }
   }
 
@@ -334,6 +354,10 @@ export default {
   img {
     max-height: 100%;
     object-fit: contain;
+
+    &.is-broken-logo {
+      opacity: 0;
+    }
   }
 }
 
@@ -380,11 +404,11 @@ a[href=""] {
 .memo-tooltip {
   position: fixed;
   max-width: 300px;
-  padding: 10px 14px;
-  background: var(--card-background, #ffffff);
-  border: 1px solid var(--card-border, #e0e0e0);
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  padding: 12px 14px;
+  background: var(--surface-elevated, #ffffff);
+  border: 1px solid var(--surface-border, #e0e0e0);
+  border-radius: 14px;
+  box-shadow: 0 24px 70px -42px var(--card-shadow, rgba(0, 0, 0, 0.25));
   z-index: 20000;
   font-size: 0.9rem;
   line-height: 1.5;
@@ -403,20 +427,21 @@ a[href=""] {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(10, 14, 22, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 20001;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(12px);
 }
 
 .memo-editor-modal {
-  background: var(--background, #ffffff);
-  border-radius: 12px;
+  background: var(--surface-elevated, #ffffff);
+  border: 1px solid var(--surface-border, #e0e0e0);
+  border-radius: 22px;
   width: 90%;
   max-width: 500px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 30px 90px -40px var(--card-shadow, rgba(0, 0, 0, 0.3));
   overflow: hidden;
 
   .modal-header {
@@ -424,7 +449,7 @@ a[href=""] {
     justify-content: space-between;
     align-items: center;
     padding: 14px 20px;
-    border-bottom: 1px solid var(--card-border, #e0e0e0);
+    border-bottom: 1px solid var(--surface-border, #e0e0e0);
     background: var(--card-background, #f5f5f5);
 
     h3 {
@@ -440,12 +465,15 @@ a[href=""] {
       font-size: 1.1rem;
       cursor: pointer;
       padding: 6px;
-      border-radius: 4px;
+      border-radius: 999px;
       color: var(--text-subtitle, #666666);
-      transition: all 0.2s;
+      transition:
+        background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
 
       &:hover {
-        background: var(--background-hover, #e0e0e0);
+        background: var(--surface-soft, #e0e0e0);
+        transform: scale(0.96);
       }
     }
   }
@@ -456,8 +484,8 @@ a[href=""] {
     textarea {
       width: 100%;
       padding: 12px;
-      border: 1px solid var(--card-border, #e0e0e0);
-      border-radius: 8px;
+      border: 1px solid var(--surface-border, #e0e0e0);
+      border-radius: 14px;
       font-size: 0.95rem;
       resize: vertical;
       min-height: 100px;
@@ -467,7 +495,7 @@ a[href=""] {
       &:focus {
         outline: none;
         border-color: var(--highlight-primary, #3367d6);
-        box-shadow: 0 0 0 3px rgba(51, 103, 214, 0.1);
+        box-shadow: 0 0 0 4px var(--focus-ring, rgba(51, 103, 214, 0.1));
       }
     }
 
@@ -529,7 +557,7 @@ a[href=""] {
     justify-content: space-between;
     align-items: center;
     padding: 14px 20px;
-    border-top: 1px solid var(--card-border, #e0e0e0);
+    border-top: 1px solid var(--surface-border, #e0e0e0);
     background: var(--card-background, #f5f5f5);
 
     .saving-indicator {
@@ -556,15 +584,21 @@ a[href=""] {
   gap: 6px;
   padding: 8px 16px;
   border: none;
-  border-radius: 6px;
+  border-radius: 999px;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition:
+    background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px) scale(0.98);
   }
 }
 

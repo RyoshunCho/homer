@@ -67,17 +67,20 @@ export default {
   gap: 8px;
   color: var(--text-header);
   font-weight: bold;
-  transition: opacity 0.2s;
+  transition:
+    opacity 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
     opacity: 0.8;
+    transform: translateY(-1px);
     background-color: transparent !important; /* Override navbar item hover */
     color: var(--text-header) !important;
   }
 
   i {
     font-size: 1.2em;
-    color: #ff9f43; /* Use the same orange as the doc link for consistency */
+    color: var(--highlight-secondary);
   }
 }
 </style>

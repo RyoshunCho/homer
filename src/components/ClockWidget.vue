@@ -67,9 +67,10 @@ export default {
 .clock-widget {
   display: flex;
   align-items: center;
-  font-family: monospace;
+  font-family: "Noto Sans", sans-serif;
   font-weight: bold;
   color: var(--text-header);
+  gap: 0.1rem;
   
   .time-group {
     display: flex;
@@ -86,7 +87,7 @@ export default {
 
   .divider {
     margin: 0 8px;
-    opacity: 0.5;
+    opacity: 0.35;
   }
 }
 </style>

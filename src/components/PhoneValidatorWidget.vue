@@ -370,14 +370,12 @@ export default {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 .phone-widget-container {
   width: 100%;
   padding: 24px;
   box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
-  color: #333;
+  font-family: inherit;
+  color: var(--text);
   display: flex;
   flex-direction: column;
   background-color: transparent; /* Parent controls BG */
@@ -388,8 +386,8 @@ export default {
   font-size: 1rem;
   font-weight: 700;
   margin-bottom: 16px;
-  color: #2c3e50;
-  letter-spacing: -0.5px;
+  color: var(--text-title);
+  letter-spacing: -0.02em;
 }
 
 .input-group {
@@ -401,50 +399,58 @@ export default {
 .phone-input {
   flex: 1;
   min-width: 0;
-  border: 1px solid #e1e4e8;
-  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
   padding: 10px 14px;
   font-size: 0.95rem;
   outline: none;
-  background: #f8f9fa;
-  color: #202124;
-  transition: all 0.2s ease;
+  background: var(--input-background);
+  color: var(--text);
+  transition:
+    border-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .phone-input:focus {
-  border-color: #3367d6;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(51, 103, 214, 0.1);
+  border-color: var(--highlight-primary);
+  background: var(--card-background);
+  box-shadow: 0 0 0 4px var(--focus-ring);
 }
 
 .action-btn {
-  background: #3367d6;
-  color: white;
+  background: var(--highlight-primary);
+  color: var(--text-header);
   border: none;
-  border-radius: 8px;
+  border-radius: 999px;
   padding: 0 20px;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: background 0.2s;
-  box-shadow: 0 2px 4px rgba(51, 103, 214, 0.2);
+  transition:
+    background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 14px 36px -24px var(--highlight-primary);
 }
 
 .action-btn:hover {
-  background: #2850a7;
+  background: var(--highlight-hover);
+}
+
+.action-btn:active {
+  transform: translateY(1px) scale(0.98);
 }
 
 .result-card {
-  background: #fff; /* Already on white, but distinct area helps */
-  /* border: 1px solid #f1f3f4; */ /* Optional inner border */
-  border-radius: 8px;
+  background: transparent;
+  border-radius: 14px;
   padding: 8px 0; /* Less padding, integrate into flow */
   display: flex;
   flex-direction: column;
   gap: 12px;
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 520ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeIn {
@@ -455,7 +461,7 @@ export default {
 .formatted-number {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #1a1a1a;
+  color: var(--text-title);
   margin-bottom: 8px;
   letter-spacing: -0.5px;
 }
@@ -466,7 +472,7 @@ export default {
   align-items: center;
   font-size: 0.9rem;
   padding: 4px 0;
-  border-bottom: 1px solid #f8f9fa;
+  border-bottom: 1px solid var(--surface-border);
 }
 
 .result-row:last-child {
@@ -479,18 +485,18 @@ export default {
     gap: 8px;
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px dashed #e1e4e8;
+    border-top: 1px dashed var(--surface-border);
 }
 
 .label {
-  color: #858585;
+  color: var(--text-subtitle);
   font-weight: 500;
   min-width: 100px;
 }
 
 .value {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-title);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -516,19 +522,22 @@ export default {
   padding: 4px 10px;
   border-radius: 20px;
   font-weight: 600;
-  border: 1px solid #e1e4e8;
-  background: #fff;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-elevated);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.2s;
-  color: #555;
+  transition:
+    background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--text);
 }
 
 .status-badge:hover {
-  background: #f1f3f4;
-  border-color: #d1d5db;
+  background: var(--surface-soft);
+  border-color: var(--highlight-primary);
   transform: translateY(-1px);
 }
 
@@ -538,14 +547,13 @@ export default {
 }
 
 :global(.dark) .phone-input {
-  background: #2d3748; /* Matching card bg slightly lighter? or darker input */
-  background: rgba(0,0,0,0.2);
+  background: var(--input-background);
   color: #e8eaed;
-  border-color: #4a5568;
+  border-color: var(--surface-border);
 }
 
 :global(.dark) .phone-input:focus {
-  border-color: #667eea;
+  border-color: var(--highlight-primary);
 }
 
 :global(.dark) .widget-header {

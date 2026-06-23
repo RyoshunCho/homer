@@ -3,8 +3,14 @@
   --highlight-primary: #b5ff57;
   --highlight-secondary: #b5ff57;
   --highlight-hover: #e7e4e4;
-  --background: #ffffff;
+  --background: #f8faf8;
   --card-background: #ffffff;
+  --surface-elevated: rgba(255, 255, 255, 0.88);
+  --surface-soft: rgba(181, 255, 87, 0.18);
+  --surface-border: rgba(31, 34, 41, 0.12);
+  --input-background: rgba(255, 255, 255, 0.75);
+  --header-surface: rgba(248, 250, 248, 0.78);
+  --focus-ring: rgba(121, 188, 42, 0.22);
   --text: #363636;
   --text-header: #1f2229;
   --text-title: #303030;
@@ -22,6 +28,12 @@
   --highlight-hover: #1f2229;
   --background: #14161a;
   --card-background: #14161a;
+  --surface-elevated: rgba(24, 27, 33, 0.9);
+  --surface-soft: rgba(181, 255, 87, 0.12);
+  --surface-border: rgba(220, 255, 181, 0.14);
+  --input-background: rgba(9, 11, 14, 0.52);
+  --header-surface: rgba(20, 22, 26, 0.72);
+  --focus-ring: rgba(181, 255, 87, 0.2);
   --text: #eaeaea;
   --text-header: #ffffff;
   --text-title: #fafafa;
