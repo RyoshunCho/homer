@@ -67,6 +67,7 @@ export default {
   gap: 8px;
   color: var(--text-header);
   font-weight: bold;
+  white-space: nowrap;
   transition:
     opacity 260ms cubic-bezier(0.16, 1, 0.3, 1),
     transform 260ms cubic-bezier(0.16, 1, 0.3, 1);

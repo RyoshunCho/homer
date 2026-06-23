@@ -411,12 +411,30 @@ export default {
   flex-direction: column;
   margin-left: 10px;
   margin-right: auto; /* Push widgets to the right */
+  min-width: 0;
+
+  h1,
+  .headline {
+    white-space: nowrap;
+  }
 }
 
 .header-widgets {
   display: flex;
   align-items: center;
-  gap: 16px;
+  flex: 0 0 auto;
+  gap: 8px;
+  padding: 0.28rem 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  .navbar-item {
+    min-height: auto;
+    padding: 0.25rem 0.35rem;
+    white-space: nowrap;
+  }
   
   @media (max-width: 768px) {
     width: 100%;

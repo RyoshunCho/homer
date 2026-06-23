@@ -68,9 +68,11 @@ export default {
   display: flex;
   align-items: center;
   font-family: "Noto Sans", sans-serif;
+  font-variant-numeric: tabular-nums;
   font-weight: bold;
   color: var(--text-header);
   gap: 0.1rem;
+  white-space: nowrap;
   
   .time-group {
     display: flex;
