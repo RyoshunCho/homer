@@ -142,20 +142,25 @@ pnpm build
 
 Then your dashboard is ready to use in the `/dist` directory.
 
-## Deployment
+## LodgeGeek Navi Deployment
 
-### Cloudflare Pages
+This fork is deployed as LodgeGeek Navi, the internal LodgeGeek portal.
 
-1. Fork this repository.
-2. Log in to the Cloudflare dashboard and select your account.
-3. In Account Home, select **Workers & Pages** > **Create application** > **Pages** > **Connect to Git**.
-4. Select the repository you created.
-5. In the **Set up builds and deployments** section, the following settings should be automatically detected:
-   - **Framework preset**: `Vue`
-   - **Build command**: `pnpm build`
-   - **Build output directory**: `dist`
-6. Click **Save and Deploy**.
+- Production URL: `https://nav.lodgegeek.com`
+- Hosting: Tencent EdgeOne Pages
+- Repository: `https://github.com/RyoshunCho/homer`
+- Production branch: `main`
+- Build command: `pnpm build`
+- Build output directory: `dist`
 
-> [!NOTE]
-> This repository includes a `wrangler.toml` file for Cloudflare Pages configuration. The `config.yml` file is tracked in git to ensure it is available during the build process.
+Production deploys are triggered from GitHub through EdgeOne Pages. Push changes to `main`, then verify the production URL after the EdgeOne deployment completes.
+
+The runtime dashboard config is managed through Cloudflare R2 and the in-app admin config editor. Do not switch it to EdgeOne KV unless that architecture decision is revisited.
+
+### LodgeGeek Additions
+
+- Lark authentication restricts access to LodgeGeek users.
+- The admin config editor edits the Cloudflare R2-backed `config.yml`.
+- The Phone No. Formatter calls the standalone Phone API at `https://phone-api.lodgegeek.com/v1/format`.
+- Phone API documentation is available at `https://phone-api.lodgegeek.com/swagger`.
 

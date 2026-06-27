@@ -4,13 +4,13 @@
 
 ## 前提
 
-- 本プロジェクトは remote repository に push されると自動的に edgeone pages にデプロイされることになっている。
+- 本プロジェクトは remote repository の `main` に push されると EdgeOne Pages に自動デプロイされる。
 
   - Cloudflare pages にはデプロイしていない。
 
 - ドメインは https://nav.lodgegeek.com
 
-- \public\assets\config.yml について現在 couldflare R2上で管理している。
+- `config.yml` は現在 Cloudflare R2 上で管理している。
 
   - R2_ACCESS_KEY_ID: 8d620a37d3948a50a013ff9bbe858893
 
@@ -26,7 +26,7 @@
 
     
 
-- この方式をけっこう気に入っているから、今後もずっとこうする。
+- この方式を継続する。
 
   - KVに保存するかどうかという議論はあったが、KVに保存しないことにします。
 
@@ -34,9 +34,9 @@
 
 ## config編集機能追加要件
 
-- Monaco Editor を導入し、オンラインでcouldflare R2上で管理しているconfig.yml を編集可能とする。
+- Monaco Editor を導入し、オンラインで Cloudflare R2 上で管理している `config.yml` を編集可能とする。
 
-- Monaco Editor でSaveボタンを押下することで、couldflare R2上で管理しているconfig.yml を最新状態で保存する。
+- Monaco Editor で Save ボタンを押下することで、Cloudflare R2 上で管理している `config.yml` を最新状態で保存する。
 
   - 旧バージョンはバックアップとして、同じR2 Bucket に別名で保存する。
 

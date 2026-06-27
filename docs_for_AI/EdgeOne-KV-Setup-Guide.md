@@ -1,5 +1,7 @@
 # EdgeOne KV Setup Guide
 
+> Historical note: this guide is retained for reference only. The current LodgeGeek Navi configuration strategy uses Cloudflare R2 and the in-app admin config editor, not EdgeOne KV. See `docs_for_AI/current-state.md`.
+
 このガイドでは、`config.yml` を EdgeOne KV に配置して、デプロイなしで設定を変更できるようにする手順を説明します。
 
 ## ステップ 1: EdgeOne KV Namespace の作成

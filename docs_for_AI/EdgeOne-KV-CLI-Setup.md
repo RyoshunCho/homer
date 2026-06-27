@@ -1,5 +1,7 @@
 # EdgeOne KV Setup via Tencent Cloud CLI
 
+> Historical note: this guide is retained for reference only. The current LodgeGeek Navi configuration strategy uses Cloudflare R2 and the in-app admin config editor, not EdgeOne KV. See `docs_for_AI/current-state.md`.
+
 このガイドでは、Tencent Cloud CLI（tccli）を使用して EdgeOne KV をセットアップします。
 
 ## 前提条件
