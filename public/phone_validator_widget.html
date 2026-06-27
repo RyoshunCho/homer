@@ -65,6 +65,30 @@
             color: var(--text-color);
             margin-bottom: 10px;
             padding-left: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .widget-header-link {
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            font-size: 0.75rem;
+            text-decoration: none;
+            transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .widget-header-link:hover {
+            background: var(--card-bg);
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
         }
 
         .input-group {
@@ -179,7 +203,19 @@
 
 <body>
     <div class="widget-wrapper">
-        <div class="widget-header">Phone No. Formatter</div>
+        <div class="widget-header">
+            <span>Phone No. Formatter</span>
+            <a
+                class="widget-header-link"
+                href="https://phone-api.lodgegeek.com/swagger"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Open Phone API docs"
+                aria-label="Open Phone API docs"
+            >
+                <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            </a>
+        </div>
 
         <div class="input-group">
             <input type="tel" id="phone-input" class="phone-input" placeholder="+1 555 0123" autocomplete="tel">

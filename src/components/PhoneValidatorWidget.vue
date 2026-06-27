@@ -1,6 +1,18 @@
 <template>
   <div class="phone-widget-container">
-    <div class="widget-header">Phone No. Formatter</div>
+    <div class="widget-header">
+      <span>Phone No. Formatter</span>
+      <a
+        class="widget-header-link"
+        href="https://phone-api.lodgegeek.com/swagger"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Open Phone API docs"
+        aria-label="Open Phone API docs"
+      >
+        <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
+      </a>
+    </div>
 
     <div class="input-group">
       <input 
@@ -184,6 +196,33 @@ export default {
   margin-bottom: 16px;
   color: var(--text-title);
   letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.widget-header-link {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--highlight-primary);
+  background: var(--surface-elevated);
+  border: 1px solid var(--surface-border);
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition:
+    background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.widget-header-link:hover {
+  background: var(--surface-soft);
+  border-color: var(--highlight-primary);
+  transform: translateY(-1px);
 }
 
 .input-group {
@@ -354,6 +393,11 @@ export default {
 
 :global(.dark) .widget-header {
   color: #fff;
+}
+
+:global(.dark) .widget-header-link {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.1);
 }
 
 :global(.dark) .result-card {
