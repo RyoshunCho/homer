@@ -2,8 +2,7 @@
   <div class="clock-widget navbar-item">
     <div class="time-group">
       <img
-        src="https://flagcdn.com/w40/cn.png"
-        srcset="https://flagcdn.com/w80/cn.png 2x"
+        src="/assets/flags/cn.png"
         width="20"
         alt="China"
         class="flag-icon"
@@ -13,8 +12,7 @@
     <div class="divider">|</div>
     <div class="time-group">
       <img
-        src="https://flagcdn.com/w40/jp.png"
-        srcset="https://flagcdn.com/w80/jp.png 2x"
+        src="/assets/flags/jp.png"
         width="20"
         alt="Japan"
         class="flag-icon"
@@ -44,7 +42,7 @@ export default {
   methods: {
     updateTime() {
       const now = new Date();
-      
+
       // China Time (UTC+8)
       this.cnTime = now.toLocaleTimeString("en-GB", {
         timeZone: "Asia/Shanghai",
@@ -73,7 +71,7 @@ export default {
   color: var(--text-header);
   gap: 0.1rem;
   white-space: nowrap;
-  
+
   .time-group {
     display: flex;
     align-items: center;
@@ -84,7 +82,7 @@ export default {
     display: block;
     height: auto;
     border-radius: 2px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
   .divider {

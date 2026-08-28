@@ -26,7 +26,7 @@
               :href="link.url"
               :target="link.target || '_blank'"
             >
-              <i v-if="link.icon" :class="['fa-fw', link.icon]"></i>
+              <i v-if="link.icon" :class="['fa-fw', getIconClass(link.icon)]"></i>
               {{ link.name }}
             </a>
           </div>
@@ -82,6 +82,14 @@ export default {
   methods: {
     isSmallScreen: function () {
       return window.matchMedia("screen and (max-width: 1023px)").matches;
+    },
+    getIconClass(icon) {
+      if (!icon) return "";
+      // Auto-correct common mistake where solid icons like fa-laptop-code are prefixed with fab
+      if (icon.includes("fa-laptop-code")) {
+        return icon.replace(/\bfab\b/, "fas");
+      }
+      return icon;
     },
     refreshConfig: async function () {
       try {

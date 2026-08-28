@@ -1,6 +1,7 @@
 <template>
   <div class="phone-widget-container">
     <div class="widget-header">
+      <span class="header-icon"><i class="fas fa-phone-alt"></i></span>
       <span>Phone No. Formatter</span>
       <a
         class="widget-header-link"
@@ -15,26 +16,38 @@
     </div>
 
     <div class="input-group">
-      <input 
-        type="tel" 
-        v-model="rawInput" 
-        @keypress.enter="formatPhoneNumber"
-        class="phone-input" 
-        placeholder="+1 555 0123" 
+      <input
+        v-model="rawInput"
+        type="tel"
+        class="phone-input"
+        placeholder="+1 555 0123"
         autocomplete="tel"
+        @keypress.enter="formatPhoneNumber"
+      />
+      <button
+        class="action-btn"
+        :disabled="isLoading"
+        @click="formatPhoneNumber"
       >
-      <button @click="formatPhoneNumber" class="action-btn" :disabled="isLoading">
-        {{ isLoading ? 'Checking' : 'Check' }}
+        {{ isLoading ? "Checking" : "Check" }}
       </button>
     </div>
 
     <div v-if="hasResult" class="result-card visible">
       <div class="formatted-number">{{ displayedFormatted }}</div>
-      
+
       <div class="result-row">
         <span class="label">Country</span>
         <div class="value">
-          <img v-if="displayedCountry" class="flag-icon" :src="flagUrl" alt="flag">
+          <img
+            v-if="displayedCountry"
+            class="flag-icon"
+            :src="flagUrl"
+            alt="flag"
+            @error="
+              $event.target.src = `https://flagcdn.com/w40/${displayedCountry.toLowerCase()}.png`
+            "
+          />
           <span>{{ displayedCountryName }}</span>
         </div>
       </div>
@@ -59,17 +72,27 @@
         <span class="value">{{ displayedLocalFormat }}</span>
       </div>
 
-      <div v-if="candidates.length > 1" class="result-row alternatives-container">
+      <div
+        v-if="candidates.length > 1"
+        class="result-row alternatives-container"
+      >
         <span class="label" style="width: 100%">Alternatives:</span>
-        <button 
-          v-for="(cand, idx) in candidates" 
-          :key="idx" 
+        <button
+          v-for="(cand, idx) in candidates"
           v-show="idx !== currentCandidateIndex"
+          :key="idx"
           class="status-badge alt-btn"
           @click="selectCandidate(idx)"
         >
-          <img v-if="cand.country" class="flag-icon-sm" :src="`https://flagcdn.com/w40/${cand.country.toLowerCase()}.png`" />
-          <span>{{ cand.country || '?' }}</span>
+          <img
+            v-if="cand.country"
+            class="flag-icon-sm"
+            :src="`/assets/flags/${cand.country.toLowerCase()}.png`"
+            @error="
+              $event.target.src = `https://flagcdn.com/w40/${cand.country.toLowerCase()}.png`
+            "
+          />
+          <span>{{ cand.country || "?" }}</span>
         </button>
       </div>
     </div>
@@ -77,19 +100,19 @@
 </template>
 
 <script>
-const PHONE_API_BASE_URL = 'https://phone-api.lodgegeek.com';
-const PRIORITY_COUNTRIES = ['JP', 'CN', 'HK', 'TW', 'KR', 'US'];
+const PHONE_API_BASE_URL = "https://phone-api.lodgegeek.com";
+const PRIORITY_COUNTRIES = ["JP", "CN", "HK", "TW", "KR", "US"];
 
 export default {
-  name: 'PhoneValidatorWidget',
+  name: "PhoneValidatorWidget",
   data() {
     return {
-      rawInput: '',
+      rawInput: "",
       candidates: [],
       currentCandidateIndex: 0,
       hasResult: false,
       isLoading: false,
-      errorMessage: ''
+      errorMessage: "",
     };
   },
   computed: {
@@ -99,72 +122,89 @@ export default {
     },
     flagUrl() {
       const country = this.displayedCountry;
-      if (!country) return '';
-      return `https://flagcdn.com/w40/${country.toLowerCase()}.png`;
+      if (!country) return "";
+      return `/assets/flags/${country.toLowerCase()}.png`;
     },
     displayedFormatted() {
       if (this.errorMessage) return this.errorMessage;
       if (!this.currentCandidate) return this.rawInput;
-      return this.currentCandidate.international || this.currentCandidate.e164 || this.rawInput;
+      return (
+        this.currentCandidate.international ||
+        this.currentCandidate.e164 ||
+        this.rawInput
+      );
     },
     displayedLocalFormat() {
-      return this.currentCandidate ? (this.currentCandidate.national || '-') : '-';
+      return this.currentCandidate
+        ? this.currentCandidate.national || "-"
+        : "-";
     },
     displayedCountry() {
       return this.currentCandidate ? this.currentCandidate.country : null;
     },
     displayedCountryName() {
-      if (!this.currentCandidate) return this.errorMessage ? '-' : 'Unknown Region';
-      return this.currentCandidate.countryName || this.currentCandidate.country || 'Unknown Region';
+      if (!this.currentCandidate)
+        return this.errorMessage ? "-" : "Unknown Region";
+      return (
+        this.currentCandidate.countryName ||
+        this.currentCandidate.country ||
+        "Unknown Region"
+      );
     },
     displayedLocation() {
-      return this.currentCandidate ? this.currentCandidate.location || null : null;
+      return this.currentCandidate
+        ? this.currentCandidate.location || null
+        : null;
     },
     displayedLanguage() {
-      return this.currentCandidate ? this.currentCandidate.language || '-' : '-';
+      return this.currentCandidate
+        ? this.currentCandidate.language || "-"
+        : "-";
     },
     displayedType() {
-      return this.currentCandidate ? this.currentCandidate.typeLabel || 'Unknown' : '-';
-    }
+      return this.currentCandidate
+        ? this.currentCandidate.typeLabel || "Unknown"
+        : "-";
+    },
   },
   methods: {
     async formatPhoneNumber() {
       const raw = this.rawInput.trim();
       if (!raw) {
         this.hasResult = false;
-        this.errorMessage = '';
+        this.errorMessage = "";
         this.candidates = [];
         return;
       }
 
       this.isLoading = true;
-      this.errorMessage = '';
+      this.errorMessage = "";
       this.currentCandidateIndex = 0;
 
       try {
         const response = await fetch(`${PHONE_API_BASE_URL}/v1/format`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             phone: raw,
             defaultCountries: PRIORITY_COUNTRIES,
-            locale: 'en'
-          })
+            locale: "en",
+          }),
         });
         const body = await response.json().catch(() => ({}));
         if (!response.ok || body.ok === false) {
-          throw new Error(body.error?.message || 'Phone lookup failed');
+          throw new Error(body.error?.message || "Phone lookup failed");
         }
 
         this.candidates = Array.isArray(body.candidates) ? body.candidates : [];
         this.hasResult = true;
         if (this.candidates.length === 0) {
-          this.errorMessage = 'No valid phone number found';
+          this.errorMessage = "No valid phone number found";
         }
       } catch (error) {
         console.error(error);
         this.candidates = [];
-        this.errorMessage = 'Phone lookup failed';
+        this.errorMessage = "Phone lookup failed";
         this.hasResult = true;
       } finally {
         this.isLoading = false;
@@ -172,9 +212,9 @@ export default {
     },
     selectCandidate(idx) {
       this.currentCandidateIndex = idx;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -199,6 +239,17 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 999px;
+  color: var(--highlight-primary, #3273dc);
+  background: var(--surface-soft);
 }
 
 .widget-header-link {
@@ -289,8 +340,14 @@ export default {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .formatted-number {
@@ -315,12 +372,12 @@ export default {
 }
 
 .alternatives-container {
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px dashed var(--surface-border);
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--surface-border);
 }
 
 .label {
@@ -342,7 +399,7 @@ export default {
   width: 20px;
   height: auto;
   border-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .flag-icon-sm {
@@ -396,8 +453,8 @@ export default {
 }
 
 :global(.dark) .widget-header-link {
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 :global(.dark) .result-card {
@@ -418,19 +475,19 @@ export default {
 }
 
 :global(.dark) .result-row {
-  border-color: rgba(255,255,255,0.05);
+  border-color: rgba(255, 255, 255, 0.05);
 }
 
 :global(.dark) .alternatives-container {
-  border-color: rgba(255,255,255,0.1);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 :global(.dark) .status-badge {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   color: #e2e8f0;
-  border-color: rgba(255,255,255,0.1);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 :global(.dark) .status-badge:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 </style>

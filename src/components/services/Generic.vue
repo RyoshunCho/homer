@@ -1,29 +1,36 @@
 <template>
   <div>
-    <div class="card" :class="{ 'is-disabled': item.disabled }" :style="`background-color:${item.background};`">
+    <div
+      class="card"
+      :class="{ 'is-disabled': item.disabled }"
+      :style="`background-color:${item.background};`"
+    >
       <div v-if="hasAnyExtra" class="doc-link" @click.stop>
         <span
           class="memo-icon"
           :class="{ 'has-memo': item.memo }"
+          title="Memo"
           @click="openMemoEditor"
           @mouseenter="showMemoTooltip"
           @mouseleave="hideMemoTooltip"
-          title="Memo"
-        ><i class="fas fa-note-sticky"></i></span>
+          ><i class="fas fa-note-sticky"></i
+        ></span>
         <a
           v-if="item.doc"
           :href="item.doc"
           target="_blank"
           rel="noreferrer"
           title="Documentation"
-        ><i class="fas fa-book-open"></i></a>
+          ><i class="fas fa-book-open"></i
+        ></a>
         <a
           v-if="item.video"
           :href="item.video"
           target="_blank"
           rel="noreferrer"
           title="Video"
-        ><i class="fas fa-circle-play"></i></a>
+          ><i class="fas fa-circle-play"></i
+        ></a>
       </div>
       <a :href="item.url" :target="item.target || '_blank'" rel="noreferrer">
         <div class="card-content">
@@ -47,6 +54,9 @@
             <div class="media-content">
               <slot name="content">
                 <p class="title">{{ item.name }}</p>
+                <p v-if="item.subtitle" class="subtitle">
+                  {{ item.subtitle }}
+                </p>
                 <p v-if="item.quick" class="quicklinks">
                   <a
                     v-for="(link, linkIndex) in item.quick"
@@ -64,9 +74,6 @@
                     ></span>
                     {{ link.name }}
                   </a>
-                </p>
-                <p v-if="item.subtitle" class="subtitle">
-                  {{ item.subtitle }}
                 </p>
               </slot>
             </div>
@@ -92,23 +99,38 @@
       </div>
 
       <!-- Memo Modal (View / Edit) -->
-      <div v-if="showMemoModal" class="memo-editor-overlay" @click.self="closeMemoModal">
+      <div
+        v-if="showMemoModal"
+        class="memo-editor-overlay"
+        @click.self="closeMemoModal"
+      >
         <div class="memo-editor-modal">
           <div class="modal-header">
             <h3><i class="fas fa-note-sticky"></i> {{ item.name }} - Memo</h3>
-            <button class="close-btn" @click="closeMemoModal" title="Close">
+            <button class="close-btn" title="Close" @click="closeMemoModal">
               <i class="fas fa-times"></i>
             </button>
           </div>
-          
+
           <!-- View Mode -->
           <div v-if="!isEditing" class="modal-body view-mode">
-            <div v-if="item.memo" class="memo-content-view" v-html="linkedMemo"></div>
+            <div
+              v-if="item.memo"
+              class="memo-content-view"
+              v-html="linkedMemo"
+            ></div>
             <div v-else class="memo-empty">メモはありません</div>
             <div class="view-footer">
-              <div v-if="item.memoUpdatedBy || item.memoUpdatedAt" class="memo-metadata">
-                <span v-if="item.memoUpdatedBy" class="memo-author">{{ item.memoUpdatedBy }}</span>
-                <span v-if="item.memoUpdatedAt" class="memo-date">{{ formattedMemoDate }}</span>
+              <div
+                v-if="item.memoUpdatedBy || item.memoUpdatedAt"
+                class="memo-metadata"
+              >
+                <span v-if="item.memoUpdatedBy" class="memo-author">{{
+                  item.memoUpdatedBy
+                }}</span>
+                <span v-if="item.memoUpdatedAt" class="memo-date">{{
+                  formattedMemoDate
+                }}</span>
               </div>
               <div class="view-actions">
                 <button class="btn btn-primary" @click="startEdit">
@@ -117,14 +139,14 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Edit Mode -->
           <div v-else class="modal-body">
             <textarea
+              ref="memoTextarea"
               v-model="editContent"
               placeholder="メモを入力..."
               rows="5"
-              ref="memoTextarea"
               @keydown.stop
             ></textarea>
           </div>
@@ -136,10 +158,18 @@
               <i class="fas fa-exclamation-circle"></i> {{ saveError }}
             </span>
             <div class="footer-actions">
-              <button class="btn btn-secondary" @click="cancelEdit" :disabled="saving">
+              <button
+                class="btn btn-secondary"
+                :disabled="saving"
+                @click="cancelEdit"
+              >
                 キャンセル
               </button>
-              <button class="btn btn-primary" @click="saveMemo" :disabled="saving">
+              <button
+                class="btn btn-primary"
+                :disabled="saving"
+                @click="saveMemo"
+              >
                 <i class="fas fa-save"></i> 保存
               </button>
             </div>
@@ -174,7 +204,9 @@ export default {
       return { media: true, "no-subtitle": !this.item.subtitle };
     },
     hasAnyExtra: function () {
-      return this.item.name || this.item.memo || this.item.doc || this.item.video;
+      return (
+        this.item.name || this.item.memo || this.item.doc || this.item.video
+      );
     },
     tooltipStyle: function () {
       return {
@@ -192,7 +224,10 @@ export default {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;")
         .replace(/\n/g, "<br>");
-      return escaped.replace(urlRegex, '<a href="$1" target="_blank" rel="noreferrer">$1</a>');
+      return escaped.replace(
+        urlRegex,
+        '<a href="$1" target="_blank" rel="noreferrer">$1</a>',
+      );
     },
     formattedMemoDate: function () {
       if (!this.item.memoUpdatedAt) return "";
@@ -205,7 +240,7 @@ export default {
           hour: "2-digit",
           minute: "2-digit",
         });
-      } catch (e) {
+      } catch {
         return this.item.memoUpdatedAt;
       }
     },
@@ -213,11 +248,11 @@ export default {
   methods: {
     showMemoTooltip(event) {
       if (!this.item.memo) return;
-      
+
       const rect = event.target.getBoundingClientRect();
       this.tooltipX = rect.left;
       this.tooltipY = rect.bottom + 8;
-      
+
       this.hoverTimeout = setTimeout(() => {
         this.showTooltip = true;
       }, 300);
@@ -285,11 +320,14 @@ export default {
         const result = await response.json();
 
         // Update local item with new values
+        // eslint-disable-next-line vue/no-mutating-props
         this.item.memo = this.editContent;
         if (result.memoUpdatedBy) {
+          // eslint-disable-next-line vue/no-mutating-props
           this.item.memoUpdatedBy = result.memoUpdatedBy;
         }
         if (result.memoUpdatedAt) {
+          // eslint-disable-next-line vue/no-mutating-props
           this.item.memoUpdatedAt = result.memoUpdatedAt;
         }
         this.isEditing = false;
@@ -314,11 +352,14 @@ export default {
   gap: 0.35rem;
   font-size: 0.9rem;
 
-  a, .memo-icon {
+  a,
+  .memo-icon {
     text-decoration: none;
     transition:
       transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
       background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      color 260ms cubic-bezier(0.16, 1, 0.3, 1),
       opacity 260ms cubic-bezier(0.16, 1, 0.3, 1);
     display: inline-flex;
     align-items: center;
@@ -336,23 +377,45 @@ export default {
     }
   }
 
+  a {
+    color: var(--link);
+  }
+
   .memo-icon {
-    opacity: 0.3;
-    
+    opacity: 0.25;
+    color: var(--text-subtitle, #7a7a7a);
+
     &.has-memo {
       opacity: 1;
+      color: var(--link);
+      background: var(--surface-soft, rgba(51, 103, 214, 0.08));
+      border-color: color-mix(in srgb, var(--link) 32%, transparent);
     }
   }
+}
+
+.media-content {
+  padding-right: 3.8rem;
+  overflow: hidden;
 }
 
 .media-left {
   .image {
     display: flex;
     align-items: center;
+    justify-content: center;
+    background: var(--surface-soft, rgba(0, 0, 0, 0.02));
+    border: 1px solid var(--surface-border, rgba(0, 0, 0, 0.06));
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 4px;
+    width: 48px;
+    height: 48px;
   }
 
   img {
     max-height: 100%;
+    max-width: 100%;
     object-fit: contain;
 
     &.is-broken-logo {
@@ -367,22 +430,38 @@ a[href=""] {
 }
 
 .quicklinks {
-  float: right;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+
   a {
-    font-size: 0.75rem;
-    padding: 3px 6px;
-    margin-left: 6px;
+    font-size: 0.72rem;
+    padding: 2px 7px;
+    margin-left: 0;
     border-radius: 100px;
-    background-color: var(--background);
-    z-index: 9999;
+    background-color: var(--surface-soft, rgba(0, 0, 0, 0.04));
+    border: 1px solid var(--surface-border, rgba(0, 0, 0, 0.08));
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    text-decoration: none;
+    z-index: 5;
     pointer-events: all;
+
+    &:hover {
+      background-color: var(--surface-border);
+      color: var(--link);
+    }
   }
 }
 
 .card.is-disabled {
   opacity: 0.5;
   filter: grayscale(50%);
-  
+
   &::after {
     content: "準備中";
     position: absolute;
@@ -505,11 +584,11 @@ a[href=""] {
         word-break: break-word;
         line-height: 1.6;
         color: var(--text, #333333);
-        
+
         a {
           color: var(--link, #3273dc);
           text-decoration: underline;
-          
+
           &:hover {
             color: var(--link-hover, #1a4a9e);
           }

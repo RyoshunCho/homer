@@ -1,70 +1,92 @@
 <template>
   <div class="global-widgets-container">
-    <div class="dashboard-widgets-row">
+    <div class="columns is-multiline dashboard-widgets-row">
       <!-- Left: Global Memo -->
-      <div class="global-memo-card widget-half">
-        <div class="memo-header">
-          <span class="memo-icon"><i class="fas fa-bullhorn"></i></span>
-          <span class="memo-title">お知らせ|公告</span>
-          <button class="edit-btn" @click="toggleEdit" :title="isEditing ? 'キャンセル' : '編集'">
-            <i :class="isEditing ? 'fas fa-times' : 'fas fa-edit'"></i>
-          </button>
-        </div>
-        
-        <div v-if="!isEditing" class="memo-body">
-          <p v-if="hasContent" class="memo-text" v-html="linkedContent"></p>
-          <p v-else class="memo-placeholder">お知らせはありません。編集ボタンで追加できます。</p>
-        </div>
-        
-        <div v-else class="memo-edit">
-          <textarea
-            v-model="editContent"
-            placeholder="お知らせを入力..."
-            rows="3"
-            ref="editTextarea"
-            @keydown.stop
-          ></textarea>
-          <div class="edit-actions">
-            <span v-if="saving" class="saving-indicator">
-              <i class="fas fa-spinner fa-spin"></i> 保存中...
-            </span>
-            <span v-if="error" class="error-indicator">{{ error }}</span>
-            <button class="btn btn-primary" @click="save" :disabled="saving">
-              <i class="fas fa-save"></i> 保存
+      <div class="column is-4 widget-col">
+        <div class="global-memo-card">
+          <div class="memo-header">
+            <span class="memo-icon"><i class="fas fa-bullhorn"></i></span>
+            <span class="memo-title">お知らせ|公告</span>
+            <button
+              class="edit-btn"
+              :title="isEditing ? 'キャンセル' : '編集'"
+              @click="toggleEdit"
+            >
+              <i :class="isEditing ? 'fas fa-times' : 'fas fa-edit'"></i>
             </button>
           </div>
-        </div>
-        
-        <div v-if="updatedBy && !isEditing" class="memo-footer">
-          <span class="update-info">
-            最終更新: {{ formattedDate }} by {{ updatedBy }}
-          </span>
+
+          <div v-if="!isEditing" class="memo-body">
+            <p v-if="hasContent" class="memo-text" v-html="linkedContent"></p>
+            <p v-else class="memo-placeholder">
+              お知らせはありません。編集ボタンで追加できます。
+            </p>
+          </div>
+
+          <div v-else class="memo-edit">
+            <textarea
+              ref="editTextarea"
+              v-model="editContent"
+              placeholder="お知らせを入力..."
+              rows="3"
+              @keydown.stop
+            ></textarea>
+            <div class="edit-actions">
+              <span v-if="saving" class="saving-indicator">
+                <i class="fas fa-spinner fa-spin"></i> 保存中...
+              </span>
+              <span v-if="error" class="error-indicator">{{ error }}</span>
+              <button class="btn btn-primary" :disabled="saving" @click="save">
+                <i class="fas fa-save"></i> 保存
+              </button>
+            </div>
+          </div>
+
+          <div v-if="updatedBy && !isEditing" class="memo-footer">
+            <span class="update-info">
+              最終更新: {{ formattedDate }} by {{ updatedBy }}
+            </span>
+          </div>
         </div>
       </div>
-      
+
       <!-- Middle: Phone Validator -->
-      <PhoneValidatorWidget class="widget-half phone-validator-card" />
+      <div class="column is-4 widget-col">
+        <PhoneValidatorWidget class="phone-validator-card" />
+      </div>
 
       <!-- Right: Currency Converter -->
-      <div class="currency-card widget-half">
-        <iframe 
-          src="/currency_widget.html" 
-          frameborder="0" 
-          scrolling="no" 
-          style="width: 100%; height: 100%; flex: 1; min-height: 240px; border: none;"
-        ></iframe>
+      <div class="column is-4 widget-col">
+        <div class="currency-card">
+          <div class="currency-header">
+            <span class="header-icon"><i class="fas fa-coins"></i></span>
+            <span>Currency Converter</span>
+          </div>
+          <iframe
+            src="/currency_widget.html"
+            frameborder="0"
+            scrolling="no"
+            style="
+              width: 100%;
+              height: 100%;
+              flex: 1;
+              min-height: 220px;
+              border: none;
+            "
+          ></iframe>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import PhoneValidatorWidget from './PhoneValidatorWidget.vue';
+import PhoneValidatorWidget from "./PhoneValidatorWidget.vue";
 
 export default {
   name: "GlobalMemo",
   components: {
-    PhoneValidatorWidget
+    PhoneValidatorWidget,
   },
   props: {
     globalMemo: {
@@ -120,7 +142,10 @@ export default {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;")
         .replace(/\n/g, "<br>");
-      return escaped.replace(urlRegex, '<a href="$1" target="_blank" rel="noreferrer">$1</a>');
+      return escaped.replace(
+        urlRegex,
+        '<a href="$1" target="_blank" rel="noreferrer">$1</a>',
+      );
     },
   },
   methods: {
@@ -159,14 +184,14 @@ export default {
         }
 
         const result = await response.json();
-        
+
         // Update parent
         this.$emit("saved", {
           content: this.editContent,
           updatedAt: result.updatedAt,
           updatedBy: result.updatedBy,
         });
-        
+
         this.isEditing = false;
       } catch (err) {
         console.error("Global memo save failed:", err);
@@ -181,30 +206,21 @@ export default {
 
 <style scoped lang="scss">
 .global-widgets-container {
-  margin-bottom: 1.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .dashboard-widgets-row {
-  display: flex;
-  gap: 20px;
-  align-items: stretch; /* Critical for equal height */
+  align-items: stretch;
 
-  @media (max-width: 768px) {
+  .widget-col {
+    display: flex;
     flex-direction: column;
-    align-items: normal; /* Reset on mobile */
   }
 }
 
-.widget-half {
-  flex: 1;
-  min-width: 0; 
-  display: flex;
-  flex-direction: column;
-  /* Ensure it fills height if simplified flex behavior fails */
-  align-self: stretch; 
-}
-
 .global-memo-card {
+  flex: 1;
+  width: 100%;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.09), transparent 52%),
     var(--card-background);
@@ -216,28 +232,52 @@ export default {
 }
 
 .currency-card {
+  flex: 1;
+  width: 100%;
   background: var(--card-background);
   border: 1px solid var(--surface-border);
   border-radius: 1.1rem;
-  overflow: hidden; 
+  overflow: hidden;
   box-shadow: 0 18px 52px -42px var(--card-shadow);
-  padding: 0; 
+  padding: 0;
   position: relative;
-  display: flex; 
+  display: flex;
   flex-direction: column;
   min-height: 220px;
 }
 
+.currency-header {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-title);
+  letter-spacing: -0.02em;
+  padding: 16px 20px 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .header-icon {
+    color: var(--highlight-primary, #3273dc);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 999px;
+    background: var(--surface-soft);
+  }
+}
+
 .phone-validator-card {
+  flex: 1;
+  width: 100%;
   background: var(--card-background);
   border: 1px solid var(--surface-border);
   border-radius: 1.1rem;
-  /* overflow: hidden; */ /* Allow shadows/content to flow if needed, but usually hidden is safer for radii */
   overflow: hidden;
   box-shadow: 0 18px 52px -42px var(--card-shadow);
-  /* padding: 0; REMOVED to allow component padding */
   position: relative;
-  display: flex; 
+  display: flex;
   flex-direction: column;
 }
 
@@ -306,7 +346,7 @@ export default {
       text-decoration: underline;
       font-weight: 500;
       text-shadow: none;
-      
+
       &:hover {
         color: var(--link-hover) !important;
       }

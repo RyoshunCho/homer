@@ -423,12 +423,18 @@ export default {
   display: flex;
   align-items: center;
   flex: 0 0 auto;
-  gap: 8px;
-  padding: 0.28rem 0.45rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  gap: 10px;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--surface-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: var(--surface-elevated);
+  box-shadow: 0 10px 30px -20px var(--card-shadow);
+  color: var(--text-title);
+
+  span {
+    color: var(--text-title);
+    font-weight: 600;
+  }
 
   .navbar-item {
     min-height: auto;
