@@ -91,7 +91,9 @@ body *:not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):no
 }
 
 .header-widgets {
-  background: var(--surface-elevated, #ffffff) !important;
+  background: var(--surface-elevated) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
   border: 1px solid var(--surface-border) !important;
   box-shadow: 0 10px 30px -20px var(--card-shadow) !important;
   color: var(--text-title) !important;

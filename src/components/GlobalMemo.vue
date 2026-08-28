@@ -222,8 +222,10 @@ export default {
   flex: 1;
   width: 100%;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.09), transparent 52%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 52%),
     var(--card-background);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--surface-border);
   border-radius: 1.1rem;
   padding: 16px 20px;
@@ -235,6 +237,8 @@ export default {
   flex: 1;
   width: 100%;
   background: var(--card-background);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--surface-border);
   border-radius: 1.1rem;
   overflow: hidden;
@@ -272,6 +276,8 @@ export default {
   flex: 1;
   width: 100%;
   background: var(--card-background);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--surface-border);
   border-radius: 1.1rem;
   overflow: hidden;
@@ -440,16 +446,5 @@ export default {
   &:hover:not(:disabled) {
     background: var(--highlight-hover);
   }
-}
-
-/* Dark theme adjustments */
-:global(.dark) .currency-card,
-:global(.dark) .phone-validator-card {
-  background: var(--card-background);
-}
-
-:global(.dark) .btn-primary {
-  background: var(--highlight-primary);
-  color: var(--text-header);
 }
 </style>

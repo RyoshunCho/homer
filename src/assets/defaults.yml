@@ -14,7 +14,7 @@ defaults:
   # columns, list
   layout: columns
   # auto, light, dark
-  colorTheme: auto
+  colorTheme: dark
 
 theme: default
 colors: ~

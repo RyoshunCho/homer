@@ -698,37 +698,4 @@ a[href=""] {
     background: var(--background-hover, #d0d0d0);
   }
 }
-
-/* Dark theme */
-.dark {
-  .memo-tooltip {
-    background: #2b2b2b;
-    border-color: #3a3a4e;
-  }
-
-  .memo-editor-modal {
-    background: #1e1e2e;
-
-    .modal-header,
-    .modal-footer {
-      background: #2a2a3e;
-      border-color: #3a3a4e;
-    }
-
-    .modal-body textarea {
-      background: #1e1e2e;
-      border-color: #3a3a4e;
-      color: #e0e0e0;
-    }
-  }
-
-  .btn-secondary {
-    background: #3a3a4e;
-    color: #e0e0e0;
-
-    &:hover:not(:disabled) {
-      background: #4a4a5e;
-    }
-  }
-}
 </style>

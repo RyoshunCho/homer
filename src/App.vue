@@ -428,6 +428,8 @@ export default {
   border: 1px solid var(--surface-border);
   border-radius: 999px;
   background: var(--surface-elevated);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 10px 30px -20px var(--card-shadow);
   color: var(--text-title);
 
@@ -441,7 +443,7 @@ export default {
     padding: 0.25rem 0.35rem;
     white-space: nowrap;
   }
-  
+
   @media (max-width: 768px) {
     width: 100%;
     justify-content: center;
@@ -478,7 +480,8 @@ export default {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
-
 </style>
