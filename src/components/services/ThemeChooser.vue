@@ -10,6 +10,7 @@
           <select v-model="theme" @change="switchTheme">
             <option value="" disabled selected>Available themes</option>
             <option value="theme-classic">classic</option>
+            <option value="theme-homergx">homergx</option>
             <option value="theme-neon">neon</option>
             <option value="theme-walkxcode">walkxcode</option>
           </select>
@@ -43,6 +44,11 @@ export default {
     switchTheme: function () {
       app.classList.replace(currentTheme, this.theme);
       currentTheme = this.theme;
+      const themeId = this.theme.replace("theme-", "");
+      localStorage.setItem(
+        "homer-theme",
+        themeId === "classic" ? "default" : themeId,
+      );
     },
   },
 };

@@ -3,7 +3,7 @@
     v-if="config && isAuthChecked && isAuthenticated"
     id="app"
     :class="[
-      `theme-${config.theme}`,
+      `theme-${currentTheme}`,
       `page-${currentPage}`,
       isDark ? 'dark' : 'light',
       !config.footer ? 'no-footer' : '',
@@ -38,6 +38,11 @@
         @navbar-toggle="showMenu = !showMenu"
         @open-config-editor="showConfigEditor = true"
       >
+        <ThemeSwitcher
+          :default-theme="config.theme"
+          @updated="currentTheme = $event"
+        />
+
         <DarkMode
           :default-value="config.defaults.colorTheme"
           @updated="isDark = $event"
@@ -136,6 +141,7 @@ import Message from "./components/Message.vue";
 import SearchInput from "./components/SearchInput.vue";
 import SettingToggle from "./components/SettingToggle.vue";
 import DarkMode from "./components/DarkMode.vue";
+import ThemeSwitcher from "./components/ThemeSwitcher.vue";
 import DynamicTheme from "./components/DynamicTheme.vue";
 import ClockWidget from "./components/ClockWidget.vue";
 import WeatherWidget from "./components/WeatherWidget.vue";
@@ -155,6 +161,7 @@ export default {
     SearchInput,
     SettingToggle,
     DarkMode,
+    ThemeSwitcher,
     DynamicTheme,
     ClockWidget,
     WeatherWidget,
@@ -172,6 +179,7 @@ export default {
       filter: "",
       vlayout: true,
       isDark: null,
+      currentTheme: localStorage.getItem("homer-theme") || "default",
       showMenu: false,
       user: null, // Add user property
       isAuthChecked: false,
